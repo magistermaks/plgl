@@ -5,8 +5,13 @@ A re-implementation of [Processing](https://processing.org/) in C++ using OpenGL
 This project is not, and does not aim to be, a 1-to-1 or API compatible port,  
 both do to the language differences between Java and C++, as well as divergent design decisions.  
 
-### Example
-#### Processing
+#### Running
+* Use `./compile --run main` to run the "main" example
+* Use `./compile --list` to list avaible example programs
+* Use `./compile --help` for aditional info
+
+#### Example
+**Processing**  
 ```Processing
 void setup() {
 	size(100, 100);
@@ -32,7 +37,7 @@ void draw() {
 }
 ```
 
-#### PLGL
+**PLGL**  
 ```C++
 #include "context.hpp"
 
