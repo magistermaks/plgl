@@ -9,13 +9,7 @@ namespace plgl {
 	constexpr float TAU = 2 * PI;
 	constexpr float HALF_PI = 0.5f * PI;
 	constexpr float EULER = 2.71828182845904523536f;
-
-	template<typename T>
-	inline T clamp(T value, T low, T high) {
-		if (value > high) return high;
-		if (value < low) return low;
-		return value;
-	} 
+	constexpr float DEGREE = PI / 180.0f;
 
 	class Vec2 {
 		
@@ -73,6 +67,10 @@ namespace plgl {
 
 			Vec2 normalized() const {
 				return *this / length();
+			}
+
+			Vec2 perpendicular() const {
+				return {-y, x};
 			}
 			
 
@@ -170,6 +168,12 @@ namespace plgl {
 		return dist(Vec3(x1, y1, z1), Vec3(x2, y2, z2));
 	}
 
+	inline float clamp(float value, float low, float high) {
+		if (value > high) return high;
+		if (value < low) return low;
+		return value;
+	} 
+
 	template <typename... Args>
 	inline auto min(Args... args) {
 		return std::min({args...});
@@ -181,8 +185,24 @@ namespace plgl {
 	}
 
 	// remaps given value from range [cs, ce] to range [ts, te]
-	inline float remap(float value, float cs, float ce, float ts, float te) {
+	constexpr inline float remap(float value, float cs, float ce, float ts, float te) {
 		return (value - cs) / (ce - cs) * (te - ts) + ts;
+	}
+
+	constexpr inline float deg(float rads) {
+		return rads / DEGREE;
+	}
+
+	constexpr inline float rad(float degs) {
+		return degs * DEGREE;
+	}
+
+	inline float cot(float v) {
+		return tan(HALF_PI - v);
+	}
+
+	inline float acot(float v) {
+		return acot(1.0f / v);
 	}
 
 }

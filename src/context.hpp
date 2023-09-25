@@ -70,6 +70,22 @@ namespace plgl {
 		renderer->trig(x1, y1, x2, y2, x3, y3);
 	}
 
+	void quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
+		renderer->quad(x1, y1, x2, y2, x3, y3, x4, y4);
+	}
+
+	void rect(float x, float y, float w, float h, float r) {
+		renderer->rect(x, y, w, h, r);
+	}
+		
+	void rect(float x, float y, float w, float h, float r1, float r2, float r3, float r4) {
+		renderer->rect(x, y, w, h, r1, r2, r3, r4);
+	}
+
+	void square(float x, float y, float extent) {
+		renderer->square(x, y, extent);
+	}
+
 	void image(float x, float y, float w, float h) {
 		renderer->image(x, y, w, h);
 	}

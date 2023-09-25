@@ -187,15 +187,63 @@ namespace plgl {
 				}
 			}
 
-		public:
+			// draws the line stroke between p1-p2, and the angle stroke at p2
+			void stroke_vertex(const Vec2& pa, const Vec2& pb, const Vec2& pc) {
 
-			void circle(float x, float y, float radius) {
-				ellipse(x, y, radius, radius);
+				Vec2 v1 = (pb - pa).normalized() * draw_width;
+				Vec2 v3 = (pa - pc).normalized() * draw_width;
+
+				Vec2 pa1 = pa + v1.perpendicular();
+				Vec2 pa2 = pa + v3.perpendicular();
+				Vec2 pc2 = pc + v3.perpendicular();
+
+				// draw corner near A
+				svert(pa.x, pa.y);
+				svert(pa1.x, pa1.y);
+				svert(pa2.x, pa2.y);
+
+				// stroke C to A
+				svert(pc.x, pc.y);
+				svert(pa.x, pa.y);
+				svert(pa2.x, pa2.y);
+				svert(pc.x, pc.y);
+				svert(pa2.x, pa2.y);
+				svert(pc2.x, pc2.y);
+	
+				// external intersection near A
+				float adiv = 1.0f / (v1.x * v3.y - v1.y * v3.x);
+				float a12 = pa1.y * (pa1.x + v1.x) - pa1.x * (pa1.y + v1.y);
+				float a34 = pa2.x * (pa2.y + v3.y) - pa2.y * (pa2.x + v3.x);
+				float apx = (a12 * v3.x + v1.x * a34) * adiv;
+				float apy = (a12 * v3.y + v1.y * a34) * adiv;
+
+				// draw external corner A
+				svert(apx, apy);
+				svert(pa1.x, pa1.y);
+				svert(pa2.x, pa2.y);
+
 			}
 
-			void ellipse(float x, float y, float hrad, float vrad) {
-				use(color_pipeline);
+			inline void fill_quad_vertices(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
+				fvert(x1, y1);
+				fvert(x2, y2);
+				fvert(x3, y3);
+				fvert(x1, y1);
+				fvert(x3, y3);
+				fvert(x4, y4);
+			}
 
+			inline void stroke_quad_vertices(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
+				svert(x1, y1);
+				svert(x2, y2);
+				svert(x3, y3);
+				svert(x1, y1);
+				svert(x3, y3);
+				svert(x4, y4);
+			}
+
+			void arc(float x, float y, float hrad, float vrad, float angle, float start) {
+				
 				float extension = stroke_flag ? draw_width : 0;
 				float herad = hrad + extension;
 				float verad = vrad + extension;
@@ -203,14 +251,14 @@ namespace plgl {
 
 				float correctness = 1 - draw_quality / extent;
 				int sides = std::max(3, (int) ceil(TAU / acos(2 * correctness * correctness - 1)));
-				float step = TAU / sides;
+				float step = angle / sides;
 
 				for (int i = 0; i < sides; i ++) {
-					float ax = x + hrad * cos(step * i);
-					float ay = y + vrad * sin(step * i);
+					float ax = x + hrad * cos(start + step * i);
+					float ay = y + vrad * sin(start + step * i);
 
-					float bx = x + hrad * cos(step * (i + 1));
-					float by = y + vrad * sin(step * (i + 1));
+					float bx = x + hrad * cos(start + step * (i + 1));
+					float by = y + vrad * sin(start + step * (i + 1));
 					
 					if (fill_flag) {
 						fvert(x, y);
@@ -219,11 +267,11 @@ namespace plgl {
 					}
 
 					if (stroke_flag) {
-						float cx = x + herad * cos(step * i);
-						float cy = y + verad * sin(step * i);
+						float cx = x + herad * cos(start + step * i);
+						float cy = y + verad * sin(start + step * i);
 
-						float dx = x + herad * cos(step * (i + 1));
-						float dy = y + verad * sin(step * (i + 1));
+						float dx = x + herad * cos(start + step * (i + 1));
+						float dy = y + verad * sin(start + step * (i + 1));
 
 						svert(ax, ay);
 						svert(cx, cy);
@@ -234,6 +282,20 @@ namespace plgl {
 						svert(bx, by);
 					}
 				}
+
+			}
+
+			
+
+		public:
+
+			void circle(float x, float y, float radius) {
+				ellipse(x, y, radius, radius);
+			}
+
+			void ellipse(float x, float y, float hrad, float vrad) {
+				use(color_pipeline);
+				arc(x, y, hrad, vrad, TAU, 0);
 			}
 
 			void line(float x1, float y1, float x2, float y2) {
@@ -290,108 +352,91 @@ namespace plgl {
 				}
 
 				if (stroke_flag) {
-					
-					// v1 = AB / |AB| * f
-					float vd1 = dist(x1, y1, x2, y2) / draw_width;
-					float vx1 = (x2 - x1) / vd1;
-					float vy1 = (y2 - y1) / vd1;
-					
-					// v2 = BC / |BC| * f
-					float vd2 = dist(x2, y2, x3, y3) / draw_width;
-					float vx2 = (x3 - x2) / vd2;
-					float vy2 = (y3 - y2) / vd2;
-					
-					// v3 = CA / |CA| * f
-					float vd3 = dist(x3, y3, x1, y1) / draw_width;
-					float vx3 = (x1 - x3) / vd3;
-					float vy3 = (y1 - y3) / vd3;
-					
-					// two points near (x1, y1)
-					float pax1 = x1 - vy1;
-					float pay1 = y1 + vx1;
-					float pax2 = x1 - vy3;
-					float pay2 = y1 + vx3;
-					svert(x1, y1); // draw corner
-					svert(pax1, pay1);
-					svert(pax2, pay2);
-					
-					// two points near (x2, y2)
-					float pbx1 = x2 - vy1;
-					float pby1 = y2 + vx1;
-					float pbx2 = x2 - vy2;
-					float pby2 = y2 + vx2;
-					svert(x2, y2); // draw corner
-					svert(pbx1, pby1);
-					svert(pbx2, pby2);
-				  
-					// two points near (x3, y3)
-					float pcx1 = x3 - vy2;
-					float pcy1 = y3 + vx2;
-					float pcx2 = x3 - vy3;
-					float pcy2 = y3 + vx3;
-					svert(x3, y3); // draw corner
-					svert(pcx1, pcy1);
-					svert(pcx2, pcy2);
 
-					// stroke (x1, y1) to (x2, y2)
-					svert(x1, y1);
-					svert(pax1, pay1);
-					svert(pbx1, pby1);
-					svert(x1, y1);
-					svert(pbx1, pby1);
-					svert(x2, y2);
+					Vec2 pa {x1, y1};
+					Vec2 pb {x2, y2};
+					Vec2 pc {x3, y3};
 
-					// stroke (x2, y2) to (x3, y3)
-					svert(x2, y2);
-					svert(x3, y3);
-					svert(pbx2, pby2);
-					svert(pbx2, pby2);
-					svert(x3, y3);
-					svert(pcx1, pcy1);
-
-					// stroke (x3, y3) to (x1, y1)
-					svert(x3, y3);
-					svert(x1, y1);
-					svert(pax2, pay2);
-					svert(x3, x3);
-					svert(pax2, pay2);
-					svert(pcx2, pcy2);
-
-					// external intersection near A
-					float adiv = 1.0f / (vx1 * vy3 - vy1 * vx3);
-					float a12 = pay1 * (pax1 + vx1) - pax1 * (pay1 + vy1);
-					float a34 = pax2 * (pay2 + vy3) - pay2 * (pax2 + vx3);
-					float apx = (a12 * vx3 + vx1 * a34) * adiv;
-					float apy = (a12 * vy3 + vy1 * a34) * adiv;
+					stroke_vertex(pa, pb, pc);
+					stroke_vertex(pb, pc, pa);
+					stroke_vertex(pc, pa, pb);
 					
-					// external intersection near B
-					float bdiv = 1.0f / (vx1 * vy2 - vy1 * vx2);
-					float b12 = pby1 * (pbx1 + vx1) - pbx1 * (pby1 + vy1);
-					float b34 = pbx2 * (pby2 + vy2) - pby2 * (pbx2 + vx2);
-					float bpx = (b12 * vx2 + vx1 * b34) * bdiv;
-					float bpy = (b12 * vy2 + vy1 * b34) * bdiv;
+				}
+			}
+
+			void quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
+				use(color_pipeline);
+
+				if (fill_flag) {
+					fvert(x1, y1);
+					fvert(x2, y2);
+					fvert(x3, y3);
+
+					fvert(x1, y1);
+					fvert(x3, y3);
+					fvert(x4, y4);
+				}
+
+				if (stroke_flag) {
+					Vec2 pa {x1, y1};
+					Vec2 pb {x2, y2};
+					Vec2 pc {x3, y3};
+					Vec2 pd {x4, y4};
+
+					stroke_vertex(pa, pb, pd);
+					stroke_vertex(pb, pc, pa);
+					stroke_vertex(pc, pd, pb);	
+					stroke_vertex(pd, pa, pc);
+				}
+			}
+
+			void square(float x, float y, float e) {
+				quad(x, y, x + e, y, x + e, y - e, x, y - e);
+			}
+
+			void rect(float x, float y, float w, float h, float r1, float r2, float r3, float r4) {
+				use(color_pipeline);
+
+				float e = (stroke_flag ? draw_width : 0);
+				float e1 = r1 + e, e2 = r2 + e, e3 = r3 + e, e4 = r4 + e;
+
+				Vec2 par {x + r1,     y - r1};
+				Vec2 pbr {x + w - r2, y - r2};
+				Vec2 pcr {x + w - r3, y - h + r3};
+				Vec2 pdr {x + r4,     y - h + r4};
+
+				arc(par.x, par.y, r1, r1, -HALF_PI, rad(180));
+				arc(pbr.x, pbr.y, r2, r2, -HALF_PI, rad(90));
+				arc(pcr.x, pcr.y, r3, r3, -HALF_PI, rad(0));
+				arc(pdr.x, pdr.y, r4, r4, -HALF_PI, rad(270));
+
+				if (fill_flag) {
 					
-					// external intersection near C
-					float cdiv = 1.0f / (vx2 * vy3 - vy2 * vx3);
-					float c12 = pcy1 * (pcx1 + vx2) - pcx1 * (pcy1 + vy2);
-					float c34 = pcx2 * (pcy2 + vy3) - pcy2 * (pcx2 + vx3);
-					float cpx = (c12 * vx3 + vx2 * c34) * cdiv;
-					float cpy = (c12 * vy3 + vy2 * c34) * cdiv;
+					// main rect body
+					fill_quad_vertices(par.x, par.y, pbr.x, pbr.y, pcr.x, pcr.y, pdr.x, pdr.y);
 
-					svert(apx, apy); // draw external corner A
-					svert(pax1, pay1);
-					svert(pax2, pay2);
- 
-					svert(bpx, bpy); // draw external corner B
-					svert(pbx1, pby1);
-					svert(pbx2, pby2);
-
-					svert(cpx, cpy); // draw external corner C
-					svert(pcx1, pcy1);
-					svert(pcx2, pcy2);
+					// beveled walls
+					fill_quad_vertices(par.x, par.y, pdr.x, pdr.y, pdr.x - r4, pdr.y, par.x - r1, par.y);
+					fill_quad_vertices(pbr.x, pbr.y, pcr.x, pcr.y, pcr.x + r3, pcr.y, pbr.x + r2, pbr.y);
+					fill_quad_vertices(pcr.x, pcr.y, pdr.x, pdr.y, pdr.x, pdr.y - r4, pcr.x, pcr.y - r3);
+					fill_quad_vertices(par.x, par.y, pbr.x, pbr.y, pbr.x, pbr.y + r2, par.x, par.y + r1);
 
 				}
 
+				if (stroke_flag) {
+
+					// beveled stroke
+					stroke_quad_vertices(pdr.x - r4, pdr.y, par.x - r1, par.y, par.x - e1, par.y, pdr.x - e4, pdr.y);
+					stroke_quad_vertices(pcr.x + r3, pcr.y, pbr.x + r2, pbr.y, pbr.x + e2, pbr.y, pcr.x + e3, pcr.y);
+					stroke_quad_vertices(pdr.x, pdr.y - r4, pcr.x, pcr.y - r3, pcr.x, pcr.y - e3, pdr.x, pdr.y - e4);
+					stroke_quad_vertices(pbr.x, pbr.y + r2, par.x, par.y + r1, par.x, par.y + e1, pbr.x, pbr.y + e2);
+
+				}
+
+			}
+
+			void rect(float x, float y, float w, float h, float r) {
+				rect(x, y, w, h, r, r, r, r);
 			}
 
 			void image(float x, float y, float w, float h) {
