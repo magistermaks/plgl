@@ -1,5 +1,10 @@
 #pragma once
 
+#include "render/renderer.hpp"
+#include "window.hpp"
+#include "color.hpp"
+#include "globals.hpp"
+
 namespace plgl {
 
 	void stroke(Disabled disabled) {

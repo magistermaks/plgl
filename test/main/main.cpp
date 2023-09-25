@@ -1,31 +1,20 @@
 
-#include "external.hpp"
-#include "renderer.hpp"
-#include "window.hpp"
-#include "shader.hpp"
-#include "font.hpp"
 #include "context.hpp"
-#include "color.hpp"
-#include "math.hpp"
 
 using namespace plgl;
-
-constexpr float operator""_deg(long double deg) {
-    return (deg / 180.0f) * plgl::PI;
-}
 
 int main() {
 
 	open("Processing-Like Graphics Library", 400, 300);
 
-	Texture cat {"cat.png"};
-	Font fnt {"font2.ttf", 100};
+	Texture cat {"assets/cat.png"};
+	Font fnt {"assets/font2.ttf", 100};
 
 	listen(WINDOW_CLOSE, [] () {
 		printf("UwU!\n");
 	});
 
-	HSLA blue {200.0_deg, 1.0f, 0.8f};
+	HSLA blue {rad(200), 1.0f, 0.8f};
 	RGBA bg = blue.rgba();
 	printf("Background: 0x%x, HSLA=%s, RGBA=%s\n", bg.pack_argb(), blue.str().c_str(), bg.str().c_str());
 
@@ -35,7 +24,7 @@ int main() {
 
 	while(!should_close) {
 
-		if (focused) background(bg); else background(HSLA(210.0_deg, 0.8f, 0.75f));
+		if (focused) background(bg); else background(HSLA(rad(210), 0.8f, 0.75f));
 
 		fill(100, 100, 100);
 		stroke(10, 150, 120);
