@@ -7,70 +7,18 @@
 #include "font.hpp"
 #include "color.hpp"
 #include "math.hpp"
+#include "basic.hpp"
+#include "arc.hpp"
 
 namespace plgl {
 
-	class Renderer {
+	class Renderer : public impl::BasicRenderer {
 
 		private:
-
-			// currently used pipeline
-			Pipeline* pipeline = nullptr;
-
-			Pipeline* color_pipeline = new Pipeline {Pipeline::getColorShader(), nullptr};
-			Pipeline* image_pipeline = nullptr;
-			Pipeline* fonts_pipeline = nullptr;
-
-			std::unordered_map<GLuint, Pipeline> textures;
 
 			float text_size;
 			float bx, by, ex, ey;
-			float draw_width;
 			float draw_quality;
-
-			// stroke settings
-			bool stroke_flag;
-			float sr, sg, sb, sa;
-
-			// fill settings
-			bool fill_flag;
-			float fr, fg, fb, fa;
-
-			// tint settings
-			float tr, tg, tb, ta;
-
-		private:
-
-			void use(Pipeline* pipeline) {
-				if (this->pipeline != pipeline) {
-					flush();
-					this->pipeline = pipeline;
-				}
-			}
-
-			Texture& getTexture() {
-				return *pipeline->texture;
-			}
-
-			void svert(float x, float y) {
-				pipeline->buffer.vertex(x, y, sr, sg, sb, sa);
-			}
-
-			void fvert(float x, float y) {
-				pipeline->buffer.vertex(x, y, fr, fg, fb, fa);
-			}
-
-			void ivert(float x, float y, float u, float v) {
-				pipeline->buffer.vertex(x, y, u, v, tr, tg, tb, ta);
-			}
-
-			void registerTexture(Texture& texture, Shader& shader) {
-				textures.emplace(
-					std::piecewise_construct, 
-					std::forward_as_tuple(texture.getTid()), 
-					std::forward_as_tuple(shader, &texture)
-				);
-			}
 
 		public:
 
@@ -81,10 +29,6 @@ namespace plgl {
 				stroke(0, 0, 0);
 				weight(1);
 				size(20);
-			}
-
-			~Renderer() {
-				delete color_pipeline;
 			}
 
 			void stroke(Disabled disabled) {
@@ -105,7 +49,7 @@ namespace plgl {
 			}
 
 			void weight(float w) {
-				this->draw_width = w;
+				this->stroke_width = w;
 			}
 
 			/// configures the max error allowed
@@ -147,15 +91,10 @@ namespace plgl {
 			}
 
 			void texture(Texture& t, float bx, float by, float ex, float ey) {
-				GLuint tid = t.getTid();
+				useTexture(t);
+
 				float w = t.getWidth();
 				float h = t.getHeight();
-
-				if (!textures.count(tid)) {
-					registerTexture(t, Pipeline::getImageShader());
-				}
-
-				this->image_pipeline = &textures.at(tid);
 
 				this->bx = std::min(bx, w) / w;
 				this->by = std::min(by, h) / h;
@@ -168,83 +107,16 @@ namespace plgl {
 			}
 
 			void font(Font& f) {
-				GLuint tid = f.getTid();
-
-				if (!textures.count(tid)) {
-					registerTexture(f, Pipeline::getFontShader());
-				}
-
-				this->fonts_pipeline = &textures.at(tid);
+				useFont(f);
 			}
 
 			void size(float s) {
 				this->text_size = s;
 			}
-			
-			void flush() {
-				if (this->pipeline != nullptr) {
-					this->pipeline->flush();
-				}
-			}
 
-			// draws the line stroke between p1-p2, and the angle stroke at p2
-			void stroke_vertex(const Vec2& pa, const Vec2& pb, const Vec2& pc) {
-
-				Vec2 v1 = (pb - pa).normalized() * draw_width;
-				Vec2 v3 = (pa - pc).normalized() * draw_width;
-
-				Vec2 pa1 = pa + v1.perpendicular();
-				Vec2 pa2 = pa + v3.perpendicular();
-				Vec2 pc2 = pc + v3.perpendicular();
-
-				// draw corner near A
-				svert(pa.x, pa.y);
-				svert(pa1.x, pa1.y);
-				svert(pa2.x, pa2.y);
-
-				// stroke C to A
-				svert(pc.x, pc.y);
-				svert(pa.x, pa.y);
-				svert(pa2.x, pa2.y);
-				svert(pc.x, pc.y);
-				svert(pa2.x, pa2.y);
-				svert(pc2.x, pc2.y);
-	
-				// external intersection near A
-				float adiv = 1.0f / (v1.x * v3.y - v1.y * v3.x);
-				float a12 = pa1.y * (pa1.x + v1.x) - pa1.x * (pa1.y + v1.y);
-				float a34 = pa2.x * (pa2.y + v3.y) - pa2.y * (pa2.x + v3.x);
-				float apx = (a12 * v3.x + v1.x * a34) * adiv;
-				float apy = (a12 * v3.y + v1.y * a34) * adiv;
-
-				// draw external corner A
-				svert(apx, apy);
-				svert(pa1.x, pa1.y);
-				svert(pa2.x, pa2.y);
-
-			}
-
-			inline void fill_quad_vertices(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
-				fvert(x1, y1);
-				fvert(x2, y2);
-				fvert(x3, y3);
-				fvert(x1, y1);
-				fvert(x3, y3);
-				fvert(x4, y4);
-			}
-
-			inline void stroke_quad_vertices(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
-				svert(x1, y1);
-				svert(x2, y2);
-				svert(x3, y3);
-				svert(x1, y1);
-				svert(x3, y3);
-				svert(x4, y4);
-			}
-
-			void arc(float x, float y, float hrad, float vrad, float angle, float start) {
+			void arc(float x, float y, float hrad, float vrad, float start, float angle, ArcMode mode = OPEN_PIE) {
 				
-				float extension = stroke_flag ? draw_width : 0;
+				float extension = getStrokeWidth();
 				float herad = hrad + extension;
 				float verad = vrad + extension;
 				float extent = std::max(herad, verad);
@@ -283,9 +155,19 @@ namespace plgl {
 					}
 				}
 
-			}
+				if (angle > PI && mode == OPEN_CHORD && fill_flag) {
+					float ax = x + hrad * cos(start);
+					float ay = y + vrad * sin(start);
 
-			
+					float bx = x + hrad * cos(start + angle);
+					float by = y + vrad * sin(start + angle);
+
+					fvert(x, y);
+					fvert(ax, ay);
+					fvert(bx, by);
+				}
+
+			}
 
 		public:
 
@@ -295,7 +177,7 @@ namespace plgl {
 
 			void ellipse(float x, float y, float hrad, float vrad) {
 				use(color_pipeline);
-				arc(x, y, hrad, vrad, TAU, 0);
+				arc(x, y, hrad, vrad, 0, TAU);
 			}
 
 			void line(float x1, float y1, float x2, float y2) {
@@ -306,7 +188,7 @@ namespace plgl {
 				}		
 
 				float a = -1.0f / ((y1 - y2)/(x1 - x2));
-				float d = sqrt((4 * draw_width * draw_width) / (1 + a * a));
+				float d = sqrt((4 * stroke_width * stroke_width) / (1 + a * a));
 			  
 				float ax1 = (2 * x1 + d) / 2;
 				float ax2 = (2 * x1 - d) / 2;
@@ -320,12 +202,12 @@ namespace plgl {
 			  
 				if (d == 0) {
 					ax1 = ax2 = x1;
-					ay1 = y1 - draw_width;
-					ay2 = y1 + draw_width;
+					ay1 = y1 - stroke_width;
+					ay2 = y1 + stroke_width;
 				
 					bx1 = bx2 = x2;
-					by1 = y2 - draw_width;
-					by2 = y2 + draw_width;
+					by1 = y2 - stroke_width;
+					by2 = y2 + stroke_width;
 				}
 
 				svert(ax2, ay2);
@@ -345,22 +227,22 @@ namespace plgl {
 			void trig(float x1, float y1, float x2, float y2, float x3, float y3) {
 				use(color_pipeline);				
 
-				if (fill_flag) {
+				if (fill_flag) 
+				{
 					fvert(x1, y1);
 					fvert(x2, y2);
 					fvert(x3, y3);
 				}
 
-				if (stroke_flag) {
-
+				if (stroke_flag) 
+				{
 					Vec2 pa {x1, y1};
 					Vec2 pb {x2, y2};
 					Vec2 pc {x3, y3};
 
-					stroke_vertex(pa, pb, pc);
-					stroke_vertex(pb, pc, pa);
-					stroke_vertex(pc, pa, pb);
-					
+					drawStrokeSegment(pa, pb, pc);
+					drawStrokeSegment(pb, pc, pa);
+					drawStrokeSegment(pc, pa, pb);
 				}
 			}
 
@@ -383,10 +265,10 @@ namespace plgl {
 					Vec2 pc {x3, y3};
 					Vec2 pd {x4, y4};
 
-					stroke_vertex(pa, pb, pd);
-					stroke_vertex(pb, pc, pa);
-					stroke_vertex(pc, pd, pb);	
-					stroke_vertex(pd, pa, pc);
+					drawStrokeSegment(pa, pb, pd);
+					drawStrokeSegment(pb, pc, pa);
+					drawStrokeSegment(pc, pd, pb);	
+					drawStrokeSegment(pd, pa, pc);
 				}
 			}
 
@@ -397,7 +279,7 @@ namespace plgl {
 			void rect(float x, float y, float w, float h, float r1, float r2, float r3, float r4) {
 				use(color_pipeline);
 
-				float e = (stroke_flag ? draw_width : 0);
+				float e = getStrokeWidth();
 				float e1 = r1 + e, e2 = r2 + e, e3 = r3 + e, e4 = r4 + e;
 
 				Vec2 par {x + r1,     y - r1};
@@ -405,31 +287,31 @@ namespace plgl {
 				Vec2 pcr {x + w - r3, y - h + r3};
 				Vec2 pdr {x + r4,     y - h + r4};
 
-				arc(par.x, par.y, r1, r1, -HALF_PI, rad(180));
-				arc(pbr.x, pbr.y, r2, r2, -HALF_PI, rad(90));
-				arc(pcr.x, pcr.y, r3, r3, -HALF_PI, rad(0));
-				arc(pdr.x, pdr.y, r4, r4, -HALF_PI, rad(270));
+				arc(par.x, par.y, r1, r1, rad(180), -HALF_PI);
+				arc(pbr.x, pbr.y, r2, r2, rad(90), -HALF_PI);
+				arc(pcr.x, pcr.y, r3, r3, rad(0), -HALF_PI);
+				arc(pdr.x, pdr.y, r4, r4, rad(270), -HALF_PI);
 
 				if (fill_flag) {
 					
 					// main rect body
-					fill_quad_vertices(par.x, par.y, pbr.x, pbr.y, pcr.x, pcr.y, pdr.x, pdr.y);
+					drawFillQuad(par.x, par.y, pbr.x, pbr.y, pcr.x, pcr.y, pdr.x, pdr.y);
 
 					// beveled walls
-					fill_quad_vertices(par.x, par.y, pdr.x, pdr.y, pdr.x - r4, pdr.y, par.x - r1, par.y);
-					fill_quad_vertices(pbr.x, pbr.y, pcr.x, pcr.y, pcr.x + r3, pcr.y, pbr.x + r2, pbr.y);
-					fill_quad_vertices(pcr.x, pcr.y, pdr.x, pdr.y, pdr.x, pdr.y - r4, pcr.x, pcr.y - r3);
-					fill_quad_vertices(par.x, par.y, pbr.x, pbr.y, pbr.x, pbr.y + r2, par.x, par.y + r1);
+					drawFillQuad(par.x, par.y, pdr.x, pdr.y, pdr.x - r4, pdr.y, par.x - r1, par.y);
+					drawFillQuad(pbr.x, pbr.y, pcr.x, pcr.y, pcr.x + r3, pcr.y, pbr.x + r2, pbr.y);
+					drawFillQuad(pcr.x, pcr.y, pdr.x, pdr.y, pdr.x, pdr.y - r4, pcr.x, pcr.y - r3);
+					drawFillQuad(par.x, par.y, pbr.x, pbr.y, pbr.x, pbr.y + r2, par.x, par.y + r1);
 
 				}
 
 				if (stroke_flag) {
 
 					// beveled stroke
-					stroke_quad_vertices(pdr.x - r4, pdr.y, par.x - r1, par.y, par.x - e1, par.y, pdr.x - e4, pdr.y);
-					stroke_quad_vertices(pcr.x + r3, pcr.y, pbr.x + r2, pbr.y, pbr.x + e2, pbr.y, pcr.x + e3, pcr.y);
-					stroke_quad_vertices(pdr.x, pdr.y - r4, pcr.x, pcr.y - r3, pcr.x, pcr.y - e3, pdr.x, pdr.y - e4);
-					stroke_quad_vertices(pbr.x, pbr.y + r2, par.x, par.y + r1, par.x, par.y + e1, pbr.x, pbr.y + e2);
+					drawStrokeQuad(pdr.x - r4, pdr.y, par.x - r1, par.y, par.x - e1, par.y, pdr.x - e4, pdr.y);
+					drawStrokeQuad(pcr.x + r3, pcr.y, pbr.x + r2, pbr.y, pbr.x + e2, pbr.y, pcr.x + e3, pcr.y);
+					drawStrokeQuad(pdr.x, pdr.y - r4, pcr.x, pcr.y - r3, pcr.x, pcr.y - e3, pdr.x, pdr.y - e4);
+					drawStrokeQuad(pbr.x, pbr.y + r2, par.x, par.y + r1, par.x, par.y + e1, pbr.x, pbr.y + e2);
 
 				}
 
@@ -449,19 +331,17 @@ namespace plgl {
 				ivert(x, y - h, bx, ey);
 				ivert(x + w , y, ex, by);
 				ivert(x + w, y - h, ex, ey);
-
 			}
 
 			void image(float x, float y) {
-
-				use(image_pipeline);				
+				use(image_pipeline);	
+			
 				image(x, y, getTexture().getWidth(), getTexture().getHeight());
-
 			}
 
 			void text(float x, float y, const std::string& str) {
-
 				use(fonts_pipeline);
+
 				Font& font = (Font&) getTexture();
 
 				for (char chr : str) {
@@ -475,7 +355,6 @@ namespace plgl {
 					ivert(q.x1, q.y0, q.s1, q.t0);
 					ivert(q.x1, q.y1, q.s1, q.t1);
 				}
-
 			}
 
 			template<class... Args>

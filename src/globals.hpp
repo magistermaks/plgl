@@ -12,6 +12,7 @@ namespace plgl {
 	long width;
 	long height;
 	long frame_count = 0;
+	long frame_rate = 0;
 
 	long mouse_scroll;
 	long mouse_x;

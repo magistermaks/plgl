@@ -7,11 +7,16 @@ int main() {
 
 	open("Processing-Like Graphics Library", 400, 300);
 
+	bool clip_mode = false;
 	Texture cat {"assets/cat.png"};
 	Font fnt {"assets/font2.ttf", 100};
 
 	listen(WINDOW_CLOSE, [] () {
-		printf("UwU!\n");
+		printf("Goodbye!\n");
+	});
+
+	listen(MOUSE_RELEASED, [&] () {
+		clip_mode = !clip_mode;
 	});
 
 	HSLA blue {rad(200), 1.0f, 0.8f};
@@ -25,6 +30,7 @@ int main() {
 	while(!should_close) {
 
 		if (focused) background(bg); else background(HSLA(rad(210), 0.8f, 0.75f));
+		if (clip_mode) clip(mouse_x - 100, mouse_y - 100, mouse_x + 100, mouse_y + 100);
 
 		fill(100, 100, 100);
 		stroke(10, 150, 120);
@@ -66,10 +72,14 @@ int main() {
 		square(250, 250, 30);
 		rect(260, 100, 100, 80, 10, 20, 40, 0);
 
+		stroke(250, 80, 80, 200);
+		arc(320, 160, 25, 25, rad(((int) (1.4f * frame_count) % 360)), TAU / 3 + PI * sin(frame_count * 0.01));
+
 		fill(39, 114, 198);
 		stroke(OFF);
 		circle(mouse_x, mouse_y, 5);
 
+		clip(OFF);
 		swap();
 	}
 

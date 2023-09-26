@@ -4,6 +4,7 @@
 #include "window.hpp"
 #include "color.hpp"
 #include "globals.hpp"
+#include "time.hpp"
 
 namespace plgl {
 
@@ -39,6 +40,14 @@ namespace plgl {
 		renderer->tint(r, g, b, a);
 	}
 
+	void clip(Disabled disabled) {
+		renderer->clip(disabled);
+	}
+
+	void clip(float x1, float y1, float x2, float y2) {
+		renderer->clip(x1, y1, x2, y2);
+	}
+
 	void texture(Texture& t, float bx, float by, float ex, float ey) {
 		renderer->texture(t, bx, by, ex, ey);
 	}
@@ -53,6 +62,10 @@ namespace plgl {
 
 	void size(float s) {
 		renderer->size(s);
+	}
+
+	void arc(float x, float y, float hrad, float vrad, float start, float angle, ArcMode mode = OPEN_PIE) {
+		renderer->arc(x, y, hrad, vrad, angle, start, mode);
 	}
 
 	void circle(float x, float y, float radius) {

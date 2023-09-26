@@ -27,6 +27,7 @@ namespace plgl {
 		// load deafult values into opengl
 		glEnable(GL_MULTISAMPLE); 
 		glEnable(GL_BLEND);
+		glEnable(GL_SCISSOR_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		plgl::opened = true;
