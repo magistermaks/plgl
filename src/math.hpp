@@ -64,12 +64,14 @@ namespace plgl {
 			float get(int index) const {
 				return get_nth_element<float>(index, x, y);
 			}
-
-			Vec2 normalized() const {
+			
+			// returns a normalized vector
+			Vec2 norm() const {
 				return *this / length();
 			}
-
-			Vec2 perpendicular() const {
+	
+			// returns a perpendicular vector
+			Vec2 perp() const {
 				return {-y, x};
 			}
 			
@@ -130,7 +132,7 @@ namespace plgl {
 				return get_nth_element<float>(index, x, y, z);
 			}
 
-			Vec3 normalized() const {
+			Vec3 norm() const {
 				return *this / length();
 			}
 

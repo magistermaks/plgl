@@ -78,12 +78,12 @@ namespace plgl {
 
 				void drawStrokeSegment(const Vec2& pa, const Vec2& pb, const Vec2& pc) {
 
-					Vec2 v1 = (pb - pa).normalized() * stroke_width;
-					Vec2 v3 = (pa - pc).normalized() * stroke_width;
+					Vec2 v1 = (pb - pa).norm() * stroke_width;
+					Vec2 v3 = (pa - pc).norm() * stroke_width;
 
-					Vec2 pa1 = pa + v1.perpendicular();
-					Vec2 pa2 = pa + v3.perpendicular();
-					Vec2 pc2 = pc + v3.perpendicular();
+					Vec2 pa1 = pa + v1.perp();
+					Vec2 pa2 = pa + v3.perp();
+					Vec2 pc2 = pc + v3.perp();
 		
 					// external intersection near A
 					float adiv = 1.0f / (v1.x * v3.y - v1.y * v3.x);
