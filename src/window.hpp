@@ -29,6 +29,7 @@ namespace plgl {
 		glEnable(GL_BLEND);
 		glEnable(GL_SCISSOR_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		plgl::opened = true;
 		plgl::should_close = false;

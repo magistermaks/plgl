@@ -76,7 +76,6 @@ namespace plgl {
 					);
 				}
 
-				// draws the line stroke between p1-p2, and the angle stroke at p2
 				void drawStrokeSegment(const Vec2& pa, const Vec2& pb, const Vec2& pc) {
 
 					Vec2 v1 = (pb - pa).normalized() * stroke_width;
@@ -85,19 +84,6 @@ namespace plgl {
 					Vec2 pa1 = pa + v1.perpendicular();
 					Vec2 pa2 = pa + v3.perpendicular();
 					Vec2 pc2 = pc + v3.perpendicular();
-
-					// draw corner near A
-					svert(pa.x, pa.y);
-					svert(pa1.x, pa1.y);
-					svert(pa2.x, pa2.y);
-
-					// stroke C to A
-					svert(pc.x, pc.y);
-					svert(pa.x, pa.y);
-					svert(pa2.x, pa2.y);
-					svert(pc.x, pc.y);
-					svert(pa2.x, pa2.y);
-					svert(pc2.x, pc2.y);
 		
 					// external intersection near A
 					float adiv = 1.0f / (v1.x * v3.y - v1.y * v3.x);
@@ -106,10 +92,20 @@ namespace plgl {
 					float apx = (a12 * v3.x + v1.x * a34) * adiv;
 					float apy = (a12 * v3.y + v1.y * a34) * adiv;
 
-					// draw external corner A
+					// draw corner near A
 					svert(apx, apy);
 					svert(pa1.x, pa1.y);
-					svert(pa2.x, pa2.y);
+					svert(pa.x, pa.y);
+
+					// inner stroke A to C
+					svert(apx, apy);
+					svert(pa.x, pa.y);
+					svert(pc.x, pc.y);
+
+					// outer stroke A to C
+					svert(apx, apy);
+					svert(pc.x, pc.y);
+					svert(pc2.x, pc2.y);
 
 				}
 

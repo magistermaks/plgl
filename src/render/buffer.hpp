@@ -4,6 +4,13 @@
 
 namespace plgl {
 
+	struct Vertex {
+		float x, y, u, v, r, g, b, a;
+
+		Vertex(float x, float y, float u, float v, float r, float g, float b, float a)
+		: x(x), y(y), u(u), v(v), r(r), g(g), b(b), a(a) {}
+	};
+
 	class Buffer {
 
 		private:
@@ -12,7 +19,7 @@ namespace plgl {
 
 			GLuint vao;
 			GLuint vbo;
-			std::vector<float> buffer;
+			std::vector<Vertex> buffer;
 
 			void vertexAttribute(int index, int count, int stride, long offset) {
 				glVertexAttribPointer(index, count, GL_FLOAT, GL_FALSE, stride * sizeof(float), (void*) (offset * sizeof(float)));
@@ -21,7 +28,7 @@ namespace plgl {
 
 			void upload() {
 				glBindBuffer(GL_ARRAY_BUFFER, vbo);
-				glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(float), buffer.data(), GL_DYNAMIC_DRAW);
+				glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(Vertex), buffer.data(), GL_DYNAMIC_DRAW);
 			}
 
 		public:
@@ -61,18 +68,15 @@ namespace plgl {
 			void draw() {
 				upload();
 				glBindVertexArray(vao);
-				glDrawArrays(GL_TRIANGLES, 0, buffer.size() / stride);
+				glDrawArrays(GL_TRIANGLES, 0, buffer.size());
 			}
 
 			void vertex(float x, float y, float u, float v, float r, float g, float b, float a = 1) {
-				buffer.push_back(plgl::impl::remapx(x));
-				buffer.push_back(plgl::impl::remapy(y));
-				buffer.push_back(u);
-				buffer.push_back(v);
-				buffer.push_back(r);
-				buffer.push_back(g);
-				buffer.push_back(b);
-				buffer.push_back(a);
+				buffer.emplace_back(
+					plgl::impl::remapx(x),
+					plgl::impl::remapy(y),
+					u, v, r, g, b, a
+				);
 			}
 
 			void vertex(float x, float y, float r, float g, float b, float a = 1) {

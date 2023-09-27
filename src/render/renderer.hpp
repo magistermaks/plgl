@@ -121,8 +121,9 @@ namespace plgl {
 				float verad = vrad + extension;
 				float extent = std::max(herad, verad);
 
+				// https://stackoverflow.com/a/11774493
 				float correctness = 1 - draw_quality / extent;
-				int sides = std::max(3, (int) ceil(TAU / acos(2 * correctness * correctness - 1)));
+				int sides = std::max(3, (int) ceil(abs(angle) / acos(2 * correctness * correctness - 1)));
 				float step = angle / sides;
 
 				for (int i = 0; i < sides; i ++) {
