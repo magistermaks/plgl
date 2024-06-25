@@ -3,6 +3,7 @@
 #include "buffer.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
+#include "polygon.hpp"
 
 namespace plgl {
 
@@ -20,7 +21,7 @@ namespace plgl {
 					out vec4 vColor;
 
 					void main(){
-						gl_Position = vec4(iPos.xy, -1.0, 1.0); 
+						gl_Position = vec4(iPos.xy, -1.0, 1.0);
 						vColor = iColor;
 					}
 				)";
@@ -53,7 +54,7 @@ namespace plgl {
 					out vec2 vTex;
 
 					void main(){
-						gl_Position = vec4(iPos.xy, -1.0, 1.0); 
+						gl_Position = vec4(iPos.xy, -1.0, 1.0);
 						vColor = iColor;
 						vTex = iTex;
 					}
@@ -90,7 +91,7 @@ namespace plgl {
 					out vec2 vTex;
 
 					void main(){
-						gl_Position = vec4(iPos.xy, -1.0, 1.0); 
+						gl_Position = vec4(iPos.xy, -1.0, 1.0);
 						vColor = iColor;
 						vTex = iTex;
 					}
@@ -149,5 +150,3 @@ namespace plgl {
 	};
 
 }
-
-

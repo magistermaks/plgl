@@ -95,7 +95,7 @@ namespace plgl {
 	void rect(float x, float y, float w, float h, float r) {
 		renderer->rect(x, y, w, h, r);
 	}
-		
+
 	void rect(float x, float y, float w, float h, float r1, float r2, float r3, float r4) {
 		renderer->rect(x, y, w, h, r1, r2, r3, r4);
 	}

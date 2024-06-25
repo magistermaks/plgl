@@ -3,7 +3,7 @@
 #include "event.hpp"
 
 namespace plgl {
-	
+
 	class Renderer;
 
 	bool opened = false;

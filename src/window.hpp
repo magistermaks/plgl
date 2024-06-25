@@ -6,6 +6,10 @@
 
 namespace plgl {
 
+	namespace impl {
+		WinxCursor* null_cursor = nullptr;
+	}
+
 	void open(const char* title, int width, int height) {
 		impl::init();
 
@@ -23,13 +27,12 @@ namespace plgl {
 
 		// use GLAD to load OpenGL functions
 		gladLoadGL();
-		
+
 		// load deafult values into opengl
-		glEnable(GL_MULTISAMPLE); 
+		glEnable(GL_MULTISAMPLE);
 		glEnable(GL_BLEND);
 		glEnable(GL_SCISSOR_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		plgl::opened = true;
 		plgl::should_close = false;
@@ -46,6 +49,9 @@ namespace plgl {
 		winxSetKeybordEventHandle(impl::event::keybord_click_handle);
 		winxSetScrollEventHandle(impl::event::mouse_scroll_handle);
 		winxSetFocusEventHandle(impl::event::window_focus_handle);
+
+		// create WINX empty cursor icon
+		impl::null_cursor = winxCreateNullCursorIcon();
 	}
 
 	void listen(Event event, EventHandler callback) {
@@ -66,12 +72,12 @@ namespace plgl {
 	}
 
 	void background(float r, float g, float b) {
-		glClearColor(impl::norm(r), impl::norm(g), impl::norm(b), 1.0);	
+		glClearColor(impl::norm(r), impl::norm(g), impl::norm(b), 1.0);
 	}
 
 	void background(const impl::Color& color) {
 		RGBA rgba = color.as_rgba();
-		glClearColor(impl::norm(rgba.red()), impl::norm(rgba.green()), impl::norm(rgba.blue()), 1.0);	
+		glClearColor(impl::norm(rgba.red()), impl::norm(rgba.green()), impl::norm(rgba.blue()), 1.0);
 	}
 
 	void swap() {
@@ -81,6 +87,18 @@ namespace plgl {
 		winxPollEvents();
 		glClear(GL_COLOR_BUFFER_BIT);
 		frame_count ++;
+	}
+
+	void cursor_capture(bool capture) {
+		winxSetCursorCapture(capture);
+	}
+
+	void cursor_hide(bool hidden) {
+		if (hidden) {
+			winxSetCursorIcon(impl::null_cursor);
+		} else {
+			winxSetCursorIcon(WINX_ICON_DEFAULT);
+		}
 	}
 
 }

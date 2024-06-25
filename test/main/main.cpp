@@ -27,10 +27,13 @@ int main() {
 		printf("Oof!\n");
 	}
 
+	cursor_hide(true);
+	cursor_capture(false);
+
 	while(!should_close) {
 
 		if (focused) background(bg); else background(HSLA(rad(210), 0.8f, 0.75f));
-		if (clip_mode) clip(mouse_x - 100, mouse_y - 100, mouse_x + 100, mouse_y + 100);
+		if (clip_mode) { clip(mouse_x - 100, mouse_y - 100, mouse_x + 100, mouse_y + 100); polygon(LINES); }
 
 		fill(100, 100, 100);
 		stroke(10, 150, 120);
@@ -80,10 +83,10 @@ int main() {
 		circle(mouse_x, mouse_y, 5);
 
 		clip(OFF);
+		polygon(FILL);
 		swap();
 	}
 
 	close();
 
 }
-

@@ -70,8 +70,8 @@ namespace plgl {
 
 				void registerTexture(Texture& texture, Shader& shader) {
 					textures.emplace(
-						std::piecewise_construct, 
-						std::forward_as_tuple(texture.getTid()), 
+						std::piecewise_construct,
+						std::forward_as_tuple(texture.getTid()),
 						std::forward_as_tuple(shader, &texture)
 					);
 				}
@@ -84,7 +84,7 @@ namespace plgl {
 					Vec2 pa1 = pa + v1.perp();
 					Vec2 pa2 = pa + v3.perp();
 					Vec2 pc2 = pc + v3.perp();
-		
+
 					// external intersection near A
 					float adiv = 1.0f / (v1.x * v3.y - v1.y * v3.x);
 					float a12 = pa1.y * (pa1.x + v1.x) - pa1.x * (pa1.y + v1.y);
@@ -131,7 +131,7 @@ namespace plgl {
 
 				void useTexture(Texture& t) {
 					GLuint tid = t.getTid();
-	
+
 					if (!textures.count(tid)) {
 						registerTexture(t, Pipeline::getImageShader());
 					}

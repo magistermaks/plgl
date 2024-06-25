@@ -45,7 +45,7 @@ namespace plgl {
 
 			void stroke(const impl::Color& color) {
 				RGBA rgba = color.as_rgba();
-				stroke(rgba.red(), rgba.green(), rgba.blue(), rgba.alpha());	
+				stroke(rgba.red(), rgba.green(), rgba.blue(), rgba.alpha());
 			}
 
 			void weight(float w) {
@@ -71,7 +71,7 @@ namespace plgl {
 
 			void fill(const impl::Color& color) {
 				RGBA rgba = color.as_rgba();
-				fill(rgba.red(), rgba.green(), rgba.blue(), rgba.alpha());	
+				fill(rgba.red(), rgba.green(), rgba.blue(), rgba.alpha());
 			}
 
 			void tint(Disabled disabled) {
@@ -87,7 +87,7 @@ namespace plgl {
 
 			void tint(const impl::Color& color) {
 				RGBA rgba = color.as_rgba();
-				tint(rgba.red(), rgba.green(), rgba.blue(), rgba.alpha());	
+				tint(rgba.red(), rgba.green(), rgba.blue(), rgba.alpha());
 			}
 
 			void texture(Texture& t, float bx, float by, float ex, float ey) {
@@ -115,7 +115,7 @@ namespace plgl {
 			}
 
 			void arc(float x, float y, float hrad, float vrad, float start, float angle, ArcMode mode = OPEN_PIE) {
-				
+
 				float extension = getStrokeWidth();
 				float herad = hrad + extension;
 				float verad = vrad + extension;
@@ -132,7 +132,7 @@ namespace plgl {
 
 					float bx = x + hrad * cos(start + step * (i + 1));
 					float by = y + vrad * sin(start + step * (i + 1));
-					
+
 					if (fill_flag) {
 						fvert(x, y);
 						fvert(ax, ay);
@@ -186,26 +186,26 @@ namespace plgl {
 
 				if (!stroke_flag) {
 					return;
-				}		
+				}
 
 				float a = -1.0f / ((y1 - y2)/(x1 - x2));
 				float d = sqrt((4 * stroke_width * stroke_width) / (1 + a * a));
-			  
+
 				float ax1 = (2 * x1 + d) / 2;
 				float ax2 = (2 * x1 - d) / 2;
 				float bx1 = (2 * x2 + d) / 2;
 				float bx2 = (2 * x2 - d) / 2;
-			  
+
 				float ay1 = a * (ax1 - x1) + y1;
 				float ay2 = a * (ax2 - x1) + y1;
 				float by1 = a * (bx1 - x2) + y2;
 				float by2 = a * (bx2 - x2) + y2;
-			  
+
 				if (d == 0) {
 					ax1 = ax2 = x1;
 					ay1 = y1 - stroke_width;
 					ay2 = y1 + stroke_width;
-				
+
 					bx1 = bx2 = x2;
 					by1 = y2 - stroke_width;
 					by2 = y2 + stroke_width;
@@ -226,16 +226,16 @@ namespace plgl {
 			}
 
 			void trig(float x1, float y1, float x2, float y2, float x3, float y3) {
-				use(color_pipeline);				
+				use(color_pipeline);
 
-				if (fill_flag) 
+				if (fill_flag)
 				{
 					fvert(x1, y1);
 					fvert(x2, y2);
 					fvert(x3, y3);
 				}
 
-				if (stroke_flag) 
+				if (stroke_flag)
 				{
 					Vec2 pa {x1, y1};
 					Vec2 pb {x2, y2};
@@ -268,7 +268,7 @@ namespace plgl {
 
 					drawStrokeSegment(pa, pb, pd);
 					drawStrokeSegment(pb, pc, pa);
-					drawStrokeSegment(pc, pd, pb);	
+					drawStrokeSegment(pc, pd, pb);
 					drawStrokeSegment(pd, pa, pc);
 				}
 			}
@@ -294,7 +294,7 @@ namespace plgl {
 				arc(pdr.x, pdr.y, r4, r4, rad(270), -HALF_PI);
 
 				if (fill_flag) {
-					
+
 					// main rect body
 					drawFillQuad(par.x, par.y, pbr.x, pbr.y, pcr.x, pcr.y, pdr.x, pdr.y);
 
@@ -335,8 +335,8 @@ namespace plgl {
 			}
 
 			void image(float x, float y) {
-				use(image_pipeline);	
-			
+				use(image_pipeline);
+
 				image(x, y, getTexture().getWidth(), getTexture().getHeight());
 			}
 
@@ -348,11 +348,11 @@ namespace plgl {
 				for (char chr : str) {
 					stbtt_aligned_quad q = font.getBakedQuad(&x, &y, chr, font.getScaleForSize(text_size));
 
-					ivert(q.x0, q.y1, q.s0, q.t1); 
+					ivert(q.x0, q.y1, q.s0, q.t1);
 					ivert(q.x0, q.y0, q.s0, q.t0);
 					ivert(q.x1, q.y0, q.s1, q.t0);
 
-					ivert(q.x0, q.y1, q.s0, q.t1); 
+					ivert(q.x0, q.y1, q.s0, q.t1);
 					ivert(q.x1, q.y0, q.s1, q.t0);
 					ivert(q.x1, q.y1, q.s1, q.t1);
 				}
