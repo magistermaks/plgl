@@ -87,6 +87,7 @@ int main() {
 		swap();
 	}
 
+	cat.close();
 	close();
 
 }

@@ -48,6 +48,10 @@ namespace plgl {
 		renderer->clip(x1, y1, x2, y2);
 	}
 
+	void texture(Sprite& sprite) {
+		renderer->texture(sprite);
+	}
+
 	void texture(Texture& t, float bx, float by, float ex, float ey) {
 		renderer->texture(t, bx, by, ex, ey);
 	}

@@ -9,6 +9,7 @@
 #include "math.hpp"
 #include "basic.hpp"
 #include "arc.hpp"
+#include "atlas.hpp"
 
 namespace plgl {
 
@@ -16,6 +17,7 @@ namespace plgl {
 
 		private:
 
+			int tw, th;
 			float text_size;
 			float bx, by, ex, ey;
 			float draw_quality;
@@ -90,6 +92,10 @@ namespace plgl {
 				tint(rgba.red(), rgba.green(), rgba.blue(), rgba.alpha());
 			}
 
+			void texture(Sprite& sprite) {
+				texture(*sprite.texture, sprite.x, sprite.y, sprite.x + sprite.w, sprite.y + sprite.h);
+			}
+
 			void texture(Texture& t, float bx, float by, float ex, float ey) {
 				useTexture(t);
 
@@ -100,10 +106,16 @@ namespace plgl {
 				this->by = std::min(by, h) / h;
 				this->ex = std::min(ex, w) / w;
 				this->ey = std::min(ey, h) / h;
+
+				this->tw = std::abs(bx - ex);
+				this->th = std::abs(by - ey);
 			}
 
 			void texture(Texture& t) {
 				texture(t, 0, 0, t.getWidth(), t.getHeight());
+
+				this->tw = t.getWidth();
+				this->th = t.getHeight();
 			}
 
 			void font(Font& f) {
@@ -337,7 +349,7 @@ namespace plgl {
 			void image(float x, float y) {
 				use(image_pipeline);
 
-				image(x, y, getTexture().getWidth(), getTexture().getHeight());
+				image(x, y, tw, th);
 			}
 
 			void text(float x, float y, const std::string& str) {
