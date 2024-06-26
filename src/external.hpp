@@ -2,12 +2,14 @@
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 
 // libraries
 #include <lib/glad.h>
 #include <lib/winx.h>
 #include <lib/truetype.h>
-#include <lib/image.h>
+#include <lib/stb_image.h>
+#include <lib/stb_image_write.h>
 #include <lib/perlin.hpp>
 
 // C stdlib

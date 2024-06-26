@@ -13,7 +13,7 @@ namespace plgl {
 
 		public:
 
-			Font(const char* path, float height) {
+			Font(const char* path, float height) : Texture() {
 
 				// open file
 				std::ifstream file(path, std::ios::binary | std::ios::ate);
@@ -41,12 +41,12 @@ namespace plgl {
 					//printf("PLGL: Baked font '%s' into %dx%d bitmap, magic=%d\n", path, size, size, magic);
 
 					if (magic > 0) {
-						init(bitmap, size, size, 1);
+						upload(bitmap, size, size, 1);
 						build = true;
 					}
 
 					delete[] bitmap;
-				} 
+				}
 			}
 
 			float getScaleForSize(float size) {

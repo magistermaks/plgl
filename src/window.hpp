@@ -17,7 +17,9 @@ namespace plgl {
 			impl::fatal("There can only be one window!");
 		}
 
+		stbi_flip_vertically_on_write(true);
 		stbi_set_flip_vertically_on_load(true);
+
 		winxHint(WINX_HINT_VSYNC, WINX_VSYNC_ENABLED);
 		winxHint(WINX_HINT_MULTISAMPLES, 4);
 
