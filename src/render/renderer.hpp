@@ -188,9 +188,18 @@ namespace plgl {
 				ellipse(x, y, radius, radius);
 			}
 
+			void circle(Vec2 p1, float radius) {
+				ellipse(p1, radius, radius);
+			}
+
 			void ellipse(float x, float y, float hrad, float vrad) {
 				use(color_pipeline);
 				arc(x, y, hrad, vrad, 0, TAU);
+			}
+
+			void ellipse(Vec2 p1, float hrad, float vrad) {
+				use(color_pipeline);
+				arc(p1.x, p1.y, hrad, vrad, 0, TAU);
 			}
 
 			void line(float x1, float y1, float x2, float y2) {
@@ -233,8 +242,16 @@ namespace plgl {
 
 			}
 
+			void line(Vec2 p1, Vec2 p2) {
+				line(p1.x, p1.y, p2.x, p2.y);
+			}
+
 			void point(float x, float y) {
 				circle(x, y, 0);
+			}
+
+			void point(Vec2 p1) {
+				circle(p1.x, p1.y, 0);
 			}
 
 			void trig(float x1, float y1, float x2, float y2, float x3, float y3) {
@@ -257,6 +274,10 @@ namespace plgl {
 					drawStrokeSegment(pb, pc, pa);
 					drawStrokeSegment(pc, pa, pb);
 				}
+			}
+
+			void trig(Vec2 p1, Vec2 p2, Vec2 p3) {
+				trig(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
 			}
 
 			void quad(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
@@ -285,6 +306,10 @@ namespace plgl {
 				}
 			}
 
+			void quad(Vec2 p1, Vec2 p2, Vec2 p3, Vec2 p4) {
+				quad(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y, p4.x, p4.y);
+			}
+
 			void square(float x, float y, float e) {
 				quad(x, y, x + e, y, x + e, y - e, x, y - e);
 			}
@@ -295,10 +320,10 @@ namespace plgl {
 				float e = getStrokeWidth();
 				float e1 = r1 + e, e2 = r2 + e, e3 = r3 + e, e4 = r4 + e;
 
-				Vec2 par {x + r1,     y - r1};
-				Vec2 pbr {x + w - r2, y - r2};
-				Vec2 pcr {x + w - r3, y - h + r3};
-				Vec2 pdr {x + r4,     y - h + r4};
+				Vec2 par {x + r1,     y - r1 + h};
+				Vec2 pbr {x + w - r2, y - r2 + h};
+				Vec2 pcr {x + w - r3, y + r3};
+				Vec2 pdr {x + r4,     y + r4};
 
 				arc(par.x, par.y, r1, r1, rad(180), -HALF_PI);
 				arc(pbr.x, pbr.y, r2, r2, rad(90), -HALF_PI);
@@ -373,6 +398,80 @@ namespace plgl {
 			template<class... Args>
 			void textf(float x, float y, const std::string& str, Args&&... args) {
 				text(x, y, format(str, args...));
+			}
+
+		public:
+
+			int grid_size = 0;
+			float padding_size;
+			float radius_size;
+			int gui_box_w, gui_box_h;
+
+			void gui_begin(int grid) {
+				grid_size = grid;
+			}
+
+			void gui_padding(float padding) {
+				padding_size = padding;
+			}
+
+			void gui_radius(float radius) {
+				radius_size = radius;
+			}
+
+			void gui_sizing(int w, int h) {
+				gui_box_w = w;
+				gui_box_h = h;
+			}
+
+			bool gui_button(int x, int y, const std::string& text) {
+
+				stroke(OFF);
+				fill(90, 90, 90);
+
+				int text_size = 30;
+
+				int rx = 100 + x * grid_size + padding_size;
+				int ry = 100 + y * grid_size + padding_size;
+				int rw = grid_size * gui_box_w - 2 * padding_size;
+				int rh = grid_size * gui_box_h - 2 * padding_size;
+
+				if (mouse_x > rx && mouse_y > ry && mouse_x < rx + rw && mouse_y < ry + rh) {
+					if (mouse_pressed) {
+						stroke(80, 80, 130);
+						weight(2);
+						fill(150, 150, 150);
+					} else {
+						stroke(80, 80, 130);
+						weight(2);
+						fill(110, 110, 110);
+					}
+				}
+
+				rect(rx, ry, rw, rh, radius_size);
+
+				use(fonts_pipeline);
+
+				Font& font = (Font&) getTexture();
+
+				size(text_size);
+				stroke(0, 0, 0);
+				textf(rx, ry + font.lineGap * font.getScaleForSize(text_size) + rh / 2, "ABCdef!");
+
+			}
+
+			bool gui_panel(int x, int y) {
+
+				stroke(OFF);
+				fill(255, 255, 255);
+
+				int rx = 100 + x * grid_size + padding_size;
+				int ry = 100 + y * grid_size + padding_size;
+				int rw = grid_size * gui_box_w - 2 * padding_size;
+				int rh = grid_size * gui_box_h - 2 * padding_size;
+
+				rect(rx, ry, rw, rh, radius_size);
+
 			}
 
 	};

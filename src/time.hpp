@@ -19,7 +19,7 @@ namespace plgl {
 		inline T2& unpack_durations(T1&& s, T2& t, std::index_sequence<Is...>) {
 			((
 				std::get<Is>(t) = std::get<Is>(std::forward<T1>(s)).count()
-			), ...);  
+			), ...);
 
 			return t;
 		}
@@ -31,7 +31,7 @@ namespace plgl {
 			std::tuple<Lie<Durations, int>...> values;
 
 			((
-				std::get<Durations>(tuple) = std::chrono::duration_cast<Durations>(diff), 
+				std::get<Durations>(tuple) = std::chrono::duration_cast<Durations>(diff),
 				diff -= std::chrono::duration_cast<ClockType::duration>(std::get<Durations>(tuple))
 			), ...);
 
@@ -117,10 +117,10 @@ namespace plgl {
 			const int hours, minutes, seconds, milliseconds, microseconds, nanoseconds;
 
 		public:
-	
-			Duration(int hors, int mins, int secs, int mils = 0, int mics = 0, int nans = 0) 
+
+			Duration(int hors, int mins, int secs, int mils = 0, int mics = 0, int nans = 0)
 			: hours(hors), minutes(mins), seconds(secs), milliseconds(mils), microseconds(mics), nanoseconds(nans) {}
-			
+
 
 	};
 
@@ -132,7 +132,7 @@ namespace plgl {
 		return Duration {hors, mins, secs, mils, mics, nans};
 	}
 
-	// Usage: 
+	// Usage:
 	//  * sleep(3s);                            - sleep for 3 seconds
 	//  * sleep(300ms);                         - sleep for 300 milliseconds
 	//  * sleep(std::chrono::milliseconds(10)); - sleep for 10 milliseconds
@@ -142,4 +142,3 @@ namespace plgl {
 	}
 
 }
-

@@ -12,10 +12,16 @@ namespace plgl {
 	constexpr float DEGREE = PI / 180.0f;
 
 	class Vec2 {
-		
+
 		public:
 
-			const float x, y;
+			mutable float x, y;
+
+			Vec2()
+			: Vec2(0) {}
+
+			Vec2(float v)
+			: Vec2(v, v) {}
 
 			Vec2(float x, float y)
 			: x(x), y(y) {}
@@ -25,8 +31,13 @@ namespace plgl {
 				return from_angle(uniform_random(TAU));
 			}
 
+			// https://mathworld.wolfram.com/SpherePointPicking.html
+			static inline Vec2 random(Random& random) {
+				return from_angle(random.uniform(0, TAU));
+			}
+
 			static inline Vec2 from_angle(float alpha) {
-				return {cos(alpha), sin(alpha)};
+				return {(float) cos(alpha), (float) sin(alpha)};
 			}
 
 		public:
@@ -34,7 +45,7 @@ namespace plgl {
 			Vec2 operator / (float scalar) const {
 				return {x / scalar, y / scalar};
 			}
-			
+
 			Vec2 operator * (float scalar) const {
 				return {x * scalar, y * scalar};
 			}
@@ -54,8 +65,8 @@ namespace plgl {
 			Vec2 operator - (const Vec2& vector) const {
 				return {x - vector.x, y - vector.y};
 			}
-	
-		public:	
+
+		public:
 
 			float length() const {
 				return sqrt(x * x + y * y);
@@ -64,25 +75,31 @@ namespace plgl {
 			float get(int index) const {
 				return get_nth_element<float>(index, x, y);
 			}
-			
+
 			// returns a normalized vector
 			Vec2 norm() const {
 				return *this / length();
 			}
-	
+
 			// returns a perpendicular vector
 			Vec2 perp() const {
 				return {-y, x};
 			}
-			
+
 
 	};
 
 	class Vec3 {
-		
+
 		public:
 
-			const float x, y, z;
+			mutable float x, y, z;
+
+			Vec3()
+			: Vec3(0) {}
+
+			Vec3(float v)
+			: Vec3(v, v, v) {}
 
 			Vec3(float x, float y, float z)
 			: x(x), y(y), z(z) {}
@@ -92,8 +109,13 @@ namespace plgl {
 				return from_angle(TAU * uniform_random(1), acos(2 * uniform_random(1) - 1));
 			}
 
+			// https://mathworld.wolfram.com/SpherePointPicking.html
+			static inline Vec3 random(Random& random) {
+				return from_angle(TAU * random.uniform(0, 1), acos(2 * random.uniform(0, 1) - 1));
+			}
+
 			static inline Vec3 from_angle(float alpha, float beta) {
-				return {cos(alpha) * cos(beta), sin(beta), sin(alpha) * cos(beta)};
+				return {(float) cos(alpha) * (float) cos(beta), (float) sin(beta), (float) sin(alpha) * (float) cos(beta)};
 			}
 
 		public:
@@ -156,15 +178,15 @@ namespace plgl {
 
 	inline float dist(const Vec2& a, const Vec2& b) {
 		return (a - b).length();
-	} 
+	}
 
 	inline float dist(const Vec3& a, const Vec3& b) {
 		return (a - b).length();
-	} 
+	}
 
 	inline float dist(float x1, float y1, float x2, float y2) {
 		return dist(Vec2(x1, y1), Vec2(x2, y2));
-	} 
+	}
 
 	inline float dist(float x1, float y1, float z1, float x2, float y2, float z2) {
 		return dist(Vec3(x1, y1, z1), Vec3(x2, y2, z2));
@@ -174,7 +196,7 @@ namespace plgl {
 		if (value > high) return high;
 		if (value < low) return low;
 		return value;
-	} 
+	}
 
 	template <typename... Args>
 	inline auto min(Args... args) {
@@ -208,4 +230,3 @@ namespace plgl {
 	}
 
 }
-

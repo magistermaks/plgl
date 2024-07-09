@@ -214,7 +214,7 @@ double winxGetTime();
 
 // based on https://code.woboq.org/kde/include/X11/keysymdef.h.html
 #	define WXK_SPACE    ' '
-#	define WXK_TAB 		'\t'
+#	define WXK_TAB      0xff09 // XK_Tab
 #	define WXK_ESC      0xff1b // XK_Escape
 #	define WXK_ENTER    0xff0d // XK_Return
 #	define WXK_BACK     0xff08 // XK_BackSpace
@@ -222,6 +222,9 @@ double winxGetTime();
 #	define WXK_DOWN     0xff54 // XK_Down
 #	define WXK_LEFT     0xff51 // XK_Left
 #	define WXK_RIGHT    0xff53 // XK_Right
+#	define WXK_SHIFT    0xffe1 // XK_Shift_L
+#	define WXK_CONTROL  0xffe3 // XK_Control_L
+#	define WXK_ALT      0xffe9 // XK_Alt_L
 #	define WXB_LEFT     1 // Button1 (X.h)
 #	define WXB_CENTER   2 // Button2 (X.h)
 #	define WXB_RIGHT    3 // Button3 (X.h)
@@ -231,7 +234,7 @@ double winxGetTime();
 
 // based on https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 #	define WXK_SPACE    ' '
-#	define WXK_TAB      '\t'
+#	define WXK_TAB      0x09
 #	define WXK_ESC      0x1B // VK_ESCAPE
 #	define WXK_ENTER    0x0D // VK_RETURN
 #	define WXK_BACK     0x08 // VK_BACK
@@ -239,6 +242,9 @@ double winxGetTime();
 #	define WXK_DOWN     0x28 // VK_DOWN
 #	define WXK_LEFT     0x25 // VK_LEFT
 #	define WXK_RIGHT    0x27 // VK_RIGHT
+#	define WXK_SHIFT    0xA0 // VK_LSHIFT
+#	define WXK_CONTROL  0xA2 // VK_LCONTROL
+#	define WXK_ALT      0x12 // VK_MENU
 #	define WXB_LEFT     1
 #	define WXB_CENTER   2
 #	define WXB_RIGHT    3
@@ -250,4 +256,3 @@ double winxGetTime();
 #endif
 
 #endif // WINX_H
-

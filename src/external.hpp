@@ -1,9 +1,5 @@
 #pragma once
 
-#define STB_TRUETYPE_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-
 // libraries
 #include <lib/glad.h>
 #include <lib/winx.h>
@@ -14,6 +10,7 @@
 
 // C stdlib
 #include <cstdio>
+#include <cstring>
 #include <cmath>
 
 // C++ stdlib
@@ -26,3 +23,5 @@
 #include <random>
 #include <chrono>
 #include <thread>
+#include <list>
+#include <set>

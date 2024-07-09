@@ -52,6 +52,7 @@ int main() {
 
 		}
 
+		clip(OFF); // FIXME
 		swap();
 	}
 

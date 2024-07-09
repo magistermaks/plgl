@@ -15,6 +15,7 @@ add_executable(${name}
 target_link_libraries(${name}
 	WINX
 	GLAD
+	PLGL
 	${X11_LIBRARIES}
 )
 

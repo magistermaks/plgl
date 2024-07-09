@@ -3,14 +3,15 @@
 #include "event.hpp"
 #include "internal.hpp"
 #include "color.hpp"
+#include "render/renderer.hpp"
 
 namespace plgl {
 
 	namespace impl {
-		WinxCursor* null_cursor = nullptr;
+		extern WinxCursor* null_cursor;
 	}
 
-	void open(const char* title, int width, int height) {
+	inline void open(const char* title, int width, int height) {
 		impl::init();
 
 		if (opened) {
@@ -56,11 +57,11 @@ namespace plgl {
 		impl::null_cursor = winxCreateNullCursorIcon();
 	}
 
-	void listen(Event event, EventHandler callback) {
+	inline void listen(Event event, EventHandler callback) {
 		impl::user_event_handlers[(int) event] = callback;
 	}
 
-	void close() {
+	inline void close() {
 		winxClose();
 		plgl::opened = false;
 		plgl::should_close = false;
@@ -69,20 +70,20 @@ namespace plgl {
 		plgl::renderer = nullptr;
 	}
 
-	void title(const char* title) {
+	inline void title(const char* title) {
 		winxSetTitle(title);
 	}
 
-	void background(float r, float g, float b) {
+	inline void background(float r, float g, float b) {
 		glClearColor(impl::norm(r), impl::norm(g), impl::norm(b), 1.0);
 	}
 
-	void background(const impl::Color& color) {
+	inline void background(const impl::Color& color) {
 		RGBA rgba = color.as_rgba();
 		glClearColor(impl::norm(rgba.red()), impl::norm(rgba.green()), impl::norm(rgba.blue()), 1.0);
 	}
 
-	void swap() {
+	inline void swap() {
 		impl::trigger(WINDOW_DRAW);
 		renderer->flush();
 		winxSwapBuffers();
@@ -91,11 +92,11 @@ namespace plgl {
 		frame_count ++;
 	}
 
-	void cursor_capture(bool capture) {
+	inline void cursor_capture(bool capture) {
 		winxSetCursorCapture(capture);
 	}
 
-	void cursor_hide(bool hidden) {
+	inline void cursor_hide(bool hidden) {
 		if (hidden) {
 			winxSetCursorIcon(impl::null_cursor);
 		} else {

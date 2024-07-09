@@ -45,7 +45,7 @@ namespace plgl {
 
 	template<class... Args>
 	inline std::string format(const std::string& format_str, Args&&... args) {
-				
+
 		std::vector<std::string> arguments;
 		(arguments.emplace_back(str(args)), ...);
 
@@ -78,5 +78,9 @@ namespace plgl {
 
 	}
 
-}
+	template <typename C, typename E>
+	inline bool contains(const C& collection, const E& element) {
+		return std::find(std::begin(collection), std::end(collection), element) != std::end(collection);
+	}
 
+}

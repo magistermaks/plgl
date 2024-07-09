@@ -6,10 +6,11 @@ namespace plgl {
 
 	class Font : public Texture {
 
-		private:
+		public:
 
 			float base;
 			stbtt_bakedchar cdata[96]; // ASCII 32 (space) .. 126 (~) is 95 glyphs
+			float lineGap;
 
 		public:
 
@@ -40,6 +41,13 @@ namespace plgl {
 					int magic = stbtt_BakeFontBitmap((unsigned char*) buffer.data(), 0, height, bitmap, size, size, 32, 96, cdata);
 					//printf("PLGL: Baked font '%s' into %dx%d bitmap, magic=%d\n", path, size, size, magic);
 
+					float ascent;
+					float descent;
+//					float lineGap;
+
+					stbtt_GetScaledFontVMetrics((unsigned char*) buffer.data(), 0, size, &ascent, &descent, &lineGap);
+					printf("ascent=%f, descent=%f, lineGap=%f\n", ascent, descent, lineGap);
+
 					if (magic > 0) {
 						upload(bitmap, size, size, 1);
 						build = true;
@@ -51,6 +59,10 @@ namespace plgl {
 
 			float getScaleForSize(float size) {
 				return size / base;
+			}
+
+			float getFontLineGap() {
+
 			}
 
 			stbtt_aligned_quad getBakedQuad(float* x, float* y, int code, float scale) {

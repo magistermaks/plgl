@@ -34,7 +34,7 @@ namespace plgl {
 			exit(1);
 		}
 
-		void init() {
+		inline void init() {
 			static bool initialized = false;
 
 			if (!initialized) {
@@ -79,40 +79,39 @@ namespace plgl {
 
 			inline void mouse_scroll_handle(int scroll) {
 				mouse_scroll = scroll;
-				trigger(MOUSE_SCROLLED); 
+				trigger(MOUSE_SCROLLED);
 			}
 
 			inline void mouse_click_handle(int state, int button) {
 				mouse_button = button;
 
-				if (state == WINX_PRESSED) { 
+				if (state == WINX_PRESSED) {
 					mouse_pressed = true;
-					trigger(MOUSE_PRESSED); 
+					trigger(MOUSE_PRESSED);
 				}
 
-				if (state == WINX_RELEASED) { 
+				if (state == WINX_RELEASED) {
 					mouse_pressed = false;
-					trigger(MOUSE_RELEASED); 
+					trigger(MOUSE_RELEASED);
 				}
 			}
 
 			inline void keybord_click_handle(int state, int keycode) {
 				key_code = keycode;
 
-				if (state == WINX_PRESSED) { 
+				if (state == WINX_PRESSED) {
 					key_pressed = true;
-					trigger(KEY_PRESSED); 
+					trigger(KEY_PRESSED);
 				}
 
-				if (state == WINX_RELEASED) { 
+				if (state == WINX_RELEASED) {
 					key_pressed = false;
-					trigger(KEY_RELEASED); 
+					trigger(KEY_RELEASED);
 				}
 			}
 
 		}
-	
+
 	}
 
 }
-

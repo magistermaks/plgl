@@ -6,31 +6,31 @@ namespace plgl {
 
 	class Renderer;
 
-	bool opened = false;
-	bool focused = false;
-	bool should_close = false;
-	long width;
-	long height;
-	long frame_count = 0;
-	long frame_rate = 0;
+	extern bool opened;
+	extern bool focused;
+	extern bool should_close;
+	extern long width;
+	extern long height;
+	extern long frame_count;
+	extern long frame_rate;
 
-	long mouse_scroll;
-	long mouse_x;
-	long mouse_y;
-	long prev_mouse_x;
-	long prev_mouse_y;
-	bool mouse_pressed = false;
-	long mouse_button;
+	extern long mouse_scroll;
+	extern long mouse_x;
+	extern long mouse_y;
+	extern long prev_mouse_x;
+	extern long prev_mouse_y;
+	extern bool mouse_pressed;
+	extern long mouse_button;
 
-	long key;
-	long key_code;
-	bool key_pressed = false;
+	extern long key;
+	extern long key_code;
+	extern bool key_pressed;
 
-	std::string last_error = "";
-	Renderer* renderer = nullptr;
+	extern std::string last_error;
+	extern Renderer* renderer;
 
 	namespace impl {
-		EventHandler user_event_handlers[impl::EVENT_COUNT] = {};
+		extern EventHandler user_event_handlers[impl::EVENT_COUNT];
 	}
 
 }

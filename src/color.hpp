@@ -11,7 +11,7 @@ namespace plgl {
 
 	namespace impl {
 
-		float hue_to_rgb(float p, float q, float t) {
+		inline float hue_to_rgb(float p, float q, float t) {
 			if (t < 0) t += 1;
 			if (t > 1) t -= 1;
 			if (t < 1.0f/6.0f) return p + (q - p) * 6 * t;
@@ -30,19 +30,19 @@ namespace plgl {
 
 	}
 
-	int unpack_alpha(int argb) {
+	inline int unpack_alpha(int argb) {
 		return (argb >> 24) & 0xFF;
 	}
 
-	int unpack_red(int argb) {
+	inline int unpack_red(int argb) {
 		return (argb >> 16) & 0xFF;
 	}
 
-	int unpack_green(int argb) {
+	inline int unpack_green(int argb) {
 		return (argb >> 8) & 0xFF;
 	}
 
-	int unpack_blue(int argb) {
+	inline int unpack_blue(int argb) {
 		return argb & 0xFF;
 	}
 
@@ -50,7 +50,7 @@ namespace plgl {
 
 		private:
 
-			const float r, g, b, a;
+			mutable float r, g, b, a;
 
 			RGBA as_rgba() const override {
 				return *this;
@@ -58,10 +58,13 @@ namespace plgl {
 
 		public:
 
-			RGBA(float r, float g, float b, float a = 255.0f) 
+			RGBA()
+			: r(0), g(0), b(0), a(0) {}
+
+			RGBA(float r, float g, float b, float a = 255.0f)
 			: r(r), g(g), b(b), a(a) {}
 
-			RGBA(int rgb, float a = 255.0f) 
+			RGBA(int rgb, float a = 255.0f)
 			: r(unpack_red(rgb)), g(unpack_green(rgb)), b(unpack_blue(rgb)), a(a) {}
 
 			HSLA hsla() const;
@@ -75,7 +78,7 @@ namespace plgl {
 			float green() const {
 				return g;
 			}
-	
+
 			// get blue channel value [0, 255]
 			float blue() const {
 				return b;
@@ -107,7 +110,7 @@ namespace plgl {
 
 		private:
 
-			const float h, s, l, a;
+			mutable float h, s, l, a;
 
 			RGBA as_rgba() const override {
 				return rgba();
@@ -115,7 +118,10 @@ namespace plgl {
 
 		public:
 
-			HSLA(float h, float s, float l, float a = 255.0f) 
+			HSLA()
+			: h(0), s(0), l(0), a(0) {}
+
+			HSLA(float h, float s, float l, float a = 255.0f)
 			: h(h), s(s), l(l), a(a) {}
 
 			RGBA rgba() const;
@@ -129,7 +135,7 @@ namespace plgl {
 			float sat() const {
 				return s;
 			}
-	
+
 			// get the color luminance (brightness) [0, 1]
 			float lum() const {
 				return l;
@@ -142,21 +148,21 @@ namespace plgl {
 			bool achromatic() const {
 				return s == 0;
 			}
-			
+
 			std::string str() const {
 				return format("hsla(%s, %s%%, %s%%, %s)", (int) round((h / TAU) * 360), (int) round(s * 100), (int) round(l * 100), impl::renorm(a));
 			}
 
 	};
 
-	RGBA unpack_argb(int argb) {
+	inline RGBA unpack_argb(int argb) {
 		return {argb, (float) unpack_alpha(argb)};
 	}
 
 }
 
 // https://stackoverflow.com/a/9493060
-plgl::RGBA plgl::HSLA::rgba() const {
+inline plgl::RGBA plgl::HSLA::rgba() const {
 	float r, g, b;
 	float sh = h / TAU;
 
@@ -175,7 +181,7 @@ plgl::RGBA plgl::HSLA::rgba() const {
 }
 
 // https://stackoverflow.com/a/9493060
-plgl::HSLA plgl::RGBA::hsla() const {
+inline plgl::HSLA plgl::RGBA::hsla() const {
 	float r = impl::norm(this->r);
 	float g = impl::norm(this->g);
 	float b = impl::norm(this->b);
@@ -199,4 +205,3 @@ plgl::HSLA plgl::RGBA::hsla() const {
 
 	return {(h / 6) * TAU, s, l, this->a};
 }
-
