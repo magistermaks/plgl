@@ -17,75 +17,30 @@ namespace plgl {
 
 			mutable float x, y;
 
-			Vec2()
+			constexpr Vec2()
 			: Vec2(0) {}
 
-			Vec2(float v)
+			constexpr Vec2(float v)
 			: Vec2(v, v) {}
 
-			Vec2(float x, float y)
+			constexpr Vec2(float x, float y)
 			: x(x), y(y) {}
 
-			// https://mathworld.wolfram.com/SpherePointPicking.html
-			static inline Vec2 random() {
-				return from_angle(uniform_random(TAU));
-			}
-
-			// https://mathworld.wolfram.com/SpherePointPicking.html
-			static inline Vec2 random(Random& random) {
-				return from_angle(random.uniform(0, TAU));
-			}
-
-			static inline Vec2 from_angle(float alpha) {
-				return {(float) cos(alpha), (float) sin(alpha)};
-			}
+			static Vec2 random();
+			static Vec2 random(Random& random);
+			static Vec2 from_angle(float alpha);
 
 		public:
 
-			Vec2 operator / (float scalar) const {
-				return {x / scalar, y / scalar};
-			}
+			float quadrance() const;
+			float length() const;
+			float get(int index) const;
 
-			Vec2 operator * (float scalar) const {
-				return {x * scalar, y * scalar};
-			}
+			/// returns a normalized vector
+			Vec2 norm() const;
 
-			Vec2 operator + (float scalar) const {
-				return {x + scalar, y + scalar};
-			}
-
-			Vec2 operator - (float scalar) const {
-				return {x - scalar, y - scalar};
-			}
-
-			Vec2 operator + (const Vec2& vector) const {
-				return {x + vector.x, y + vector.y};
-			}
-
-			Vec2 operator - (const Vec2& vector) const {
-				return {x - vector.x, y - vector.y};
-			}
-
-		public:
-
-			float length() const {
-				return sqrt(x * x + y * y);
-			}
-
-			float get(int index) const {
-				return get_nth_element<float>(index, x, y);
-			}
-
-			// returns a normalized vector
-			Vec2 norm() const {
-				return *this / length();
-			}
-
-			// returns a perpendicular vector
-			Vec2 perp() const {
-				return {-y, x};
-			}
-
+			/// returns a perpendicular vector
+			Vec2 perp() const;
 
 	};
 
@@ -95,107 +50,77 @@ namespace plgl {
 
 			mutable float x, y, z;
 
-			Vec3()
+			constexpr Vec3()
 			: Vec3(0) {}
 
-			Vec3(float v)
+			constexpr Vec3(float v)
 			: Vec3(v, v, v) {}
 
-			Vec3(float x, float y, float z)
+			constexpr Vec3(float x, float y, float z)
 			: x(x), y(y), z(z) {}
 
-			// https://mathworld.wolfram.com/SpherePointPicking.html
-			static inline Vec3 random() {
-				return from_angle(TAU * uniform_random(1), acos(2 * uniform_random(1) - 1));
-			}
-
-			// https://mathworld.wolfram.com/SpherePointPicking.html
-			static inline Vec3 random(Random& random) {
-				return from_angle(TAU * random.uniform(0, 1), acos(2 * random.uniform(0, 1) - 1));
-			}
-
-			static inline Vec3 from_angle(float alpha, float beta) {
-				return {(float) cos(alpha) * (float) cos(beta), (float) sin(beta), (float) sin(alpha) * (float) cos(beta)};
-			}
+			static Vec3 random();
+			static Vec3 random(Random& random);
+			static Vec3 from_angle(float alpha, float beta);
 
 		public:
 
-			Vec3 operator / (float scalar) const {
-				return {x / scalar, y / scalar, z / scalar};
-			}
+			float quadrance() const;
+			float length() const;
+			float get(int index) const;
 
-			Vec3 operator * (float scalar) const {
-				return {x * scalar, y * scalar, z * scalar};
-			}
-
-			Vec3 operator + (float scalar) const {
-				return {x + scalar, y + scalar, z + scalar};
-			}
-
-			Vec3 operator - (float scalar) const {
-				return {x - scalar, y - scalar, z - scalar};
-			}
-
-			Vec3 operator + (const Vec3& vector) const {
-				return {x + vector.x, y + vector.y, z + vector.z};
-			}
-
-			Vec3 operator - (const Vec3& vector) const {
-				return {x - vector.x, y - vector.y, z - vector.z};
-			}
-
-		public:
-
-			float length() const {
-				return sqrt(x * x + y * y + z * z);
-			}
-
-			float get(int index) const {
-				return get_nth_element<float>(index, x, y, z);
-			}
-
-			Vec3 norm() const {
-				return *this / length();
-			}
+			/// returns a normalized vector
+			Vec3 norm() const;
 
 	};
 
-	inline float dot(const Vec2& a, const Vec2& b) {
+
+	float dist(const Vec2& a, const Vec2& b);
+	float dist(const Vec3& a, const Vec3& b);
+	float dist(float x1, float y1, float x2, float y2);
+	float dist(float x1, float y1, float z1, float x2, float y2, float z2);
+
+	constexpr float dot(const Vec2& a, const Vec2& b) {
 		return a.x * b.x + a.y * b.y;
 	}
 
-	inline float dot(const Vec3& a, const Vec3& b) {
+	constexpr float dot(const Vec3& a, const Vec3& b) {
 		return a.x * b.x + a.y * b.y + a.z * b.z;
 	}
 
-	inline float cross(const Vec2& a, const Vec2& b) {
+	constexpr float cross(const Vec2& a, const Vec2& b) {
 		return a.x * b.y - a.y * b.x;
 	}
 
-	inline Vec3 cross(const Vec3& a, const Vec3& b) {
+	constexpr plgl::Vec3 cross(const plgl::Vec3& a, const plgl::Vec3& b) {
 		return {a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x};
 	}
 
-	inline float dist(const Vec2& a, const Vec2& b) {
-		return (a - b).length();
-	}
-
-	inline float dist(const Vec3& a, const Vec3& b) {
-		return (a - b).length();
-	}
-
-	inline float dist(float x1, float y1, float x2, float y2) {
-		return dist(Vec2(x1, y1), Vec2(x2, y2));
-	}
-
-	inline float dist(float x1, float y1, float z1, float x2, float y2, float z2) {
-		return dist(Vec3(x1, y1, z1), Vec3(x2, y2, z2));
-	}
-
-	inline float clamp(float value, float low, float high) {
+	constexpr float clamp(float value, float low, float high) {
 		if (value > high) return high;
 		if (value < low) return low;
 		return value;
+	}
+
+	/// remaps given value from range [cs, ce] to range [ts, te]
+	constexpr inline float remap(float value, float cs, float ce, float ts, float te) {
+		return (value - cs) / (ce - cs) * (te - ts) + ts;
+	}
+
+	constexpr inline float deg(float rads) {
+		return rads / plgl::DEGREE;
+	}
+
+	constexpr inline float rad(float degs) {
+		return degs * plgl::DEGREE;
+	}
+
+	constexpr float cot(float v) {
+		return tan(plgl::HALF_PI - v);
+	}
+
+	constexpr float acot(float v) {
+		return acot(1.0f / v);
 	}
 
 	template <typename... Args>
@@ -208,25 +133,92 @@ namespace plgl {
 		return std::max({args...});
 	}
 
-	// remaps given value from range [cs, ce] to range [ts, te]
-	constexpr inline float remap(float value, float cs, float ce, float ts, float te) {
-		return (value - cs) / (ce - cs) * (te - ts) + ts;
-	}
+}
 
-	constexpr inline float deg(float rads) {
-		return rads / DEGREE;
-	}
+/*
+ * Vec2 Operators
+ */
 
-	constexpr inline float rad(float degs) {
-		return degs * DEGREE;
-	}
+inline plgl::Vec2 operator / (const plgl::Vec2& lhs, float scalar) {
+	return {lhs.x / scalar, lhs.y / scalar};
+}
 
-	inline float cot(float v) {
-		return tan(HALF_PI - v);
-	}
+inline plgl::Vec2 operator * (const plgl::Vec2& lhs, float scalar) {
+	return {lhs.x * scalar, lhs.y * scalar};
+}
 
-	inline float acot(float v) {
-		return acot(1.0f / v);
-	}
+inline plgl::Vec2 operator + (const plgl::Vec2& lhs, float scalar) {
+	return {lhs.x + scalar, lhs.y + scalar};
+}
 
+inline plgl::Vec2 operator - (const plgl::Vec2& lhs, float scalar) {
+	return {lhs.x - scalar, lhs.y - scalar};
+}
+
+inline plgl::Vec2 operator + (const plgl::Vec2& lhs, const plgl::Vec2& rhs) {
+	return {lhs.x + rhs.x, lhs.y + rhs.y};
+}
+
+inline plgl::Vec2 operator - (const plgl::Vec2& lhs, const plgl::Vec2& rhs) {
+	return {lhs.x - rhs.x, lhs.y - rhs.y};
+}
+
+inline plgl::Vec2 operator / (float scalar, const plgl::Vec2& rhs) {
+	return {scalar / rhs.x, scalar / rhs.y};
+}
+
+inline plgl::Vec2 operator * (float scalar, const plgl::Vec2& rhs) {
+	return {scalar * rhs.x, scalar * rhs.y};
+}
+
+inline plgl::Vec2 operator + (float scalar, const plgl::Vec2& rhs) {
+	return {scalar + rhs.x, scalar + rhs.y};
+}
+
+inline plgl::Vec2 operator - (float scalar, const plgl::Vec2& rhs) {
+	return {scalar - rhs.x, scalar - rhs.y};
+}
+
+/*
+ * Vec3 Operators
+ */
+
+inline plgl::Vec3 operator / (const plgl::Vec3& lhs, float scalar) {
+	return {lhs.x / scalar, lhs.y / scalar, lhs.z / scalar};
+}
+
+inline plgl::Vec3 operator * (const plgl::Vec3& lhs, float scalar) {
+	return {lhs.x * scalar, lhs.y * scalar, lhs.z * scalar};
+}
+
+inline plgl::Vec3 operator + (const plgl::Vec3& lhs, float scalar) {
+	return {lhs.x + scalar, lhs.y + scalar, lhs.z + scalar};
+}
+
+inline plgl::Vec3 operator - (const plgl::Vec3& lhs, float scalar) {
+	return {lhs.x - scalar, lhs.y - scalar, lhs.z - scalar};
+}
+
+inline plgl::Vec3 operator + (const plgl::Vec3& lhs, const plgl::Vec3& rhs) {
+	return {lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z};
+}
+
+inline plgl::Vec3 operator - (const plgl::Vec3& lhs, const plgl::Vec3& rhs) {
+	return {lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
+}
+
+inline plgl::Vec3 operator / (float scalar, const plgl::Vec3& rhs) {
+	return {scalar / rhs.x, scalar / rhs.y, scalar / rhs.z};
+}
+
+inline plgl::Vec3 operator * (float scalar, const plgl::Vec3& rhs) {
+	return {scalar * rhs.x, scalar * rhs.y, scalar * rhs.z};
+}
+
+inline plgl::Vec3 operator + (float scalar, const plgl::Vec3& rhs) {
+	return {scalar + rhs.x, scalar + rhs.y, scalar + rhs.z};
+}
+
+inline plgl::Vec3 operator - (float scalar, const plgl::Vec3& rhs) {
+	return {scalar - rhs.x, scalar - rhs.y, scalar - rhs.z};
 }

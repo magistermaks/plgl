@@ -32,6 +32,7 @@ add_library(PLGL
 	src/globals.cpp
 	src/random.cpp
 	src/window.cpp
+	src/math.cpp
 )
 
 add_subdirectory (lib)

@@ -209,36 +209,24 @@ namespace plgl {
 					return;
 				}
 
-				float a = -1.0f / ((y1 - y2)/(x1 - x2));
-				float d = sqrt((4 * stroke_width * stroke_width) / (1 + a * a));
+				float dx = y1 - y2;
+				float dy = x2 - x1;
+				float dl = sqrt(dx * dx + dy * dy);
 
-				float ax1 = (2 * x1 + d) / 2;
-				float ax2 = (2 * x1 - d) / 2;
-				float bx1 = (2 * x2 + d) / 2;
-				float bx2 = (2 * x2 - d) / 2;
+				dx /= dl;
+				dy /= dl;
 
-				float ay1 = a * (ax1 - x1) + y1;
-				float ay2 = a * (ax2 - x1) + y1;
-				float by1 = a * (bx1 - x2) + y2;
-				float by2 = a * (bx2 - x2) + y2;
+				dx *= stroke_width;
+				dy *= stroke_width;
 
-				if (d == 0) {
-					ax1 = ax2 = x1;
-					ay1 = y1 - stroke_width;
-					ay2 = y1 + stroke_width;
+				svert(x1 + dx, y1 + dy);
+				svert(x2 - dx, y2 - dy);
+				svert(x2 + dx, y2 + dy);
 
-					bx1 = bx2 = x2;
-					by1 = y2 - stroke_width;
-					by2 = y2 + stroke_width;
-				}
+				svert(x1 + dx, y1 + dy);
+				svert(x1 - dx, y1 - dy);
+				svert(x2 - dx, y2 - dy);
 
-				svert(ax2, ay2);
-				svert(bx2, by2);
-				svert(ax1, ay1);
-
-				svert(bx2, by2);
-				svert(bx1, by1);
-				svert(ax1, ay1);
 
 			}
 
