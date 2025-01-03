@@ -49,7 +49,7 @@ namespace plgl {
 		winxSetResizeEventHandle(impl::event::window_resize_handle);
 		winxSetCursorEventHandle(impl::event::mouse_move_handle);
 		winxSetButtonEventHandle(impl::event::mouse_click_handle);
-		winxSetKeybordEventHandle(impl::event::keybord_click_handle);
+		winxSetKeyboardEventHandle(impl::event::keybord_click_handle);
 		winxSetScrollEventHandle(impl::event::mouse_scroll_handle);
 		winxSetFocusEventHandle(impl::event::window_focus_handle);
 

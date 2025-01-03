@@ -2,7 +2,7 @@
 
 // libraries
 #include <glad/glad.h>
-#include <lib/winx.h>
+#include <winx.h>
 #include <lib/truetype.h>
 #include <lib/perlin.hpp>
 

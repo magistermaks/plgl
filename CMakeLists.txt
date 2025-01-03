@@ -39,6 +39,13 @@ endif()
 #)
 
 FetchContent_Declare(
+		winx
+		GIT_REPOSITORY https://github.com/dark-tree/winx
+		GIT_TAG 6bc5283274e4ceb714a8f551bc446aaa2991ec53
+		GIT_PROGRESS TRUE
+)
+
+FetchContent_Declare(
 		stb
 		GIT_REPOSITORY https://github.com/nothings/stb
 		GIT_TAG 5c205738c191bcb0abc65c4febfa9bd25ff35234
@@ -54,7 +61,7 @@ FetchContent_Declare(
 set(GLAD_PROFILE "core"	CACHE STRING "OpenGL profile")
 set(GLAD_GENERATOR "c"	CACHE STRING "Language to generate the binding for")
 
-FetchContent_MakeAvailable(stb glad)
+FetchContent_MakeAvailable(winx stb glad)
 
 include_directories(
 		.
@@ -62,6 +69,7 @@ include_directories(
 		src/
 		${stb_SOURCE_DIR}                        # Headers in ./
 		${GLAD_INCLUDE_DIRS}                     # Headers in ./glad/
+		${winx_SOURCE_DIR}                       # Headers in ./
 )
 
 file(GLOB_RECURSE PLGL_SOURCES
@@ -79,11 +87,10 @@ add_library(PLGL
 )
 
 set(PLGL_LIBS
-		WINX
 		Threads::Threads
+		winx
 		external
 		glad
-		${X11_LIBRARIES}
 )
 
 target_link_libraries(PLGL ${PLGL_LIBS})
@@ -113,5 +120,4 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 #	target_compile_options(main PRIVATE /W4 /we4715)
 endif()
 
-add_subdirectory (lib)
 add_subdirectory (test)
