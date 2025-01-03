@@ -7,101 +7,244 @@
 
 namespace plgl {
 
-	namespace impl {
-		extern WinxCursor* null_cursor;
-	}
+	/**
+	 * @brief Open window.
+	 *
+	 * This needs to be called before any drawing can start,
+	 * typically should be somewhere near the start of your program.
+	 *
+	 * @note One application can only have one window, invoking open()
+	 *       multiple times will result in an error.
+	 *
+	 * @example
+	 * @code{.cpp}
+	 * int main() {
+	 *
+	 *    // open the application window
+	 *    open("My PLGL Application", 400, 300);
+	 *
+	 *    // run until the user tries to close the window
+	 *    while (!should_close) {
+	 *        // put your drawing code here
+	 *    }
+	 *
+	 *    // when the program is about to close call close()
+	 *    close();
+	 *
+	 * }
+	 * @endcode
+	 *
+	 * @see plgl::close()
+	 *
+	 * @param[in] title   Title of the window to be shown on the bar
+	 * @param[in] width   Window width, in pixels
+	 * @param[in] height  Window height, in pixels
+	 */
+	void open(const std::string& title, int width, int height);
 
-	inline void open(const char* title, int width, int height) {
-		impl::init();
+	/**
+	 * @brief Open window without title.
+	 *
+	 * A shorthand for opening windows without a given title, see
+	 * the linked function for full documentation.
+	 *
+	 * @note One application can only have one window, invoking open()
+	 *       multiple times will result in an error.
+	 *
+	 * @see plgl::open(const std::string&, int, int)
+	 *
+	 * @param[in] width   Window width, in pixels
+	 * @param[in] height  Window height, in pixels
+	 */
+	void open(int width, int height);
 
-		if (opened) {
-			impl::fatal("There can only be one window!");
-		}
+	/**
+	 * @brief Open window without size.
+	 *
+	 * A shorthand for opening windows without a given size, see
+	 * the linked function for full documentation.
+	 *
+	 * @note One application can only have one window, invoking open()
+	 *       multiple times will result in an error.
+	 *
+	 * @see plgl::open(const std::string&, int, int)
+	 *
+	 * @param[in] title  Title of the window to be shown on the bar
+	 */
+	void open(const std::string& title);
 
-		stbi_flip_vertically_on_write(true);
-		stbi_set_flip_vertically_on_load(true);
+	/**
+	 * @brief Open some window.
+	 *
+	 * A shorthand for opening windows without a given size or title, see
+	 * the linked function for full documentation.
+	 *
+	 * @note One application can only have one window, invoking open()
+	 *       multiple times will result in an error.
+	 *
+	 * @see plgl::open(const std::string&, int, int)
+	 */
+	void open();
 
-		winxHint(WINX_HINT_VSYNC, WINX_VSYNC_ENABLED);
-		winxHint(WINX_HINT_MULTISAMPLES, 4);
+	/**
+	 * @brief Sets the listener for a particular event type.
+	 *
+	 * @example
+	 * @code{.cpp}
+	 * int main() {
+	 *
+	 *     open();
+	 *
+	 *     listen(WINDOW_CLOSE, [&] () {
+	 *         // the used click the 'X' on the window bar
+	 *     });
+	 *
+	 *     listen(MOUSE_RELEASED, [&] () {
+	 *         // mouse was released
+	 *     });
+	 *
+	 *     // ...
+	 *
+	 * }
+	 * @endcode
+	 *
+	 * @see plgl::Event
+	 *
+	 * @param[in] event     The event to listen for
+	 * @param[in] callback  The code to run when the event happens
+	 */
+	void listen(Event event, EventHandler callback);
 
-		if (!winxOpen(width, height, title)) {
-			impl::fatal("Failed to open window, WINX error: %s!", winxGetError());
-		}
+	/**
+	 * @brief Close currently open window.
+	 *
+	 * Must be called after a successful open(). After close has been
+	 * called another window may be opened again using open(), as long as there
+	 * isn't more then one open window at a time.
+	 *
+	 * @example
+	 * @code{.cpp}
+	 * int main() {
+	 *
+	 *    // open the application window
+	 *    open("My PLGL Application", 400, 300);
+	 *
+	 *    // run until the user tries to close the window
+	 *    while (!should_close) {
+	 *        // put your drawing code here
+	 *    }
+	 *
+	 *    // call close() to make the window close
+	 *    close();
+	 *
+	 *    // here another open() can be called
+	 *
+	 * }
+	 * @endcode
+	 *
+	 * @see plgl::open(const std::string&, int, int)
+	 */
+	void close();
 
-		// use GLAD to load OpenGL functions
-		gladLoadGL();
+	/**
+	 * @brief Change window title.
+	 *
+	 * Changes the title bar string (window title) of
+	 * the currently open window to the given string.
+	 * Window must be already open when this function is called.
+	 *
+	 * @see plgl::open(const std::string&, int, int)
+	 *
+	 * @param[in] title The new title to set
+	 */
+	void title(const std::string& title);
 
-		// load deafult values into opengl
-		glEnable(GL_MULTISAMPLE);
-		glEnable(GL_BLEND);
-		glEnable(GL_SCISSOR_TEST);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	/**
+	 * @brief Set background color.
+	 *
+	 * Contrary to how a similar function in Processing works
+	 * this doesn't actually clear the screen, just sets the clear color.
+	 * Screen is always empty when a rendering of a new frame begins,
+	 * that is, when you invoke a first draw command after swap() the whole screen
+	 * is at that point filled with the clear color.
+	 *
+	 * @note If you want the background color to be the same each frame,
+	 *       you can call this once before rendering starts (for example after plgl::open())
+	 *
+	 * @param[in] r  The red component of the color, between 0 and 255
+	 * @param[in] g  The green component of the color, between 0 and 255
+	 * @param[in] b  The blue component of the color, between 0 and 255
+	 */
+	void background(float r, float g, float b);
 
-		plgl::opened = true;
-		plgl::should_close = false;
-		plgl::width = width;
-		plgl::height = height;
-		plgl::renderer = new Renderer();
-		plgl::focused = winxGetFocus();
+	/**
+	 * @brief Set background color.
+	 *
+	 * Contrary to how a similar function in Processing works
+	 * this doesn't actually clear the screen, just sets the clear color.
+	 * Screen is always empty when a rendering of a new frame begins,
+	 * that is, when you invoke a first draw command after swap() the whole screen
+	 * is at that point filled with the clear color.
+	 *
+	 * @note If you want the background color to be the same each frame,
+	 *       you can call this once before rendering starts (for example after plgl::open())
+	 *
+	 * @param[in] color  The clear color to use
+	 */
+	void background(const impl::Color& color);
 
-		// setup WINX event handlers
-		winxSetCloseEventHandle(impl::event::window_close_handle);
-		winxSetResizeEventHandle(impl::event::window_resize_handle);
-		winxSetCursorEventHandle(impl::event::mouse_move_handle);
-		winxSetButtonEventHandle(impl::event::mouse_click_handle);
-		winxSetKeyboardEventHandle(impl::event::keybord_click_handle);
-		winxSetScrollEventHandle(impl::event::mouse_scroll_handle);
-		winxSetFocusEventHandle(impl::event::window_focus_handle);
+	/**
+	 * @brief End frame rendering
+	 *
+	 * Submits the currently drawn frame to the display,
+	 * clears the canvas, and processes input events. Must be called
+	 * in the rendering loop.
+	 *
+	 * @example
+	 * @code{.cpp}
+	 * int main() {
+	 *
+	 *    open("My PLGL Application", 400, 300);
+	 *
+	 *    while (!should_close) {
+	 *        // put your drawing code here
+	 *
+	 *        // end of frame
+	 *        swap();
+	 *    }
+	 *
+	 *    close();
+	 *
+	 * }
+	 * @endcode
+	 *
+	 * @see plgl::background(float, float, float)
+	 */
+	void swap();
 
-		// create WINX empty cursor icon
-		impl::null_cursor = winxCreateNullCursorIcon();
-	}
+	/**
+	 * @brief Forces the mouse cursor to stay within the bounds of the window.
+	 *
+	 * Makes the cursor unable to move
+	 * outside the window bounds, as if the window border was
+	 * the edge of the screen.
+	 *
+	 * @see plgl::cursor_hide(bool)
+	 *
+	 * @param[in] capture Whether the mouse should stay in the window bounds.
+	 */
+	void cursor_capture(bool capture);
 
-	inline void listen(Event event, EventHandler callback) {
-		impl::user_event_handlers[(int) event] = callback;
-	}
-
-	inline void close() {
-		winxClose();
-		plgl::opened = false;
-		plgl::should_close = false;
-
-		delete plgl::renderer;
-		plgl::renderer = nullptr;
-	}
-
-	inline void title(const char* title) {
-		winxSetTitle(title);
-	}
-
-	inline void background(float r, float g, float b) {
-		glClearColor(impl::norm(r), impl::norm(g), impl::norm(b), 1.0);
-	}
-
-	inline void background(const impl::Color& color) {
-		RGBA rgba = color.as_rgba();
-		glClearColor(impl::norm(rgba.red()), impl::norm(rgba.green()), impl::norm(rgba.blue()), 1.0);
-	}
-
-	inline void swap() {
-		impl::trigger(WINDOW_DRAW);
-		renderer->flush();
-		winxSwapBuffers();
-		winxPollEvents();
-		glClear(GL_COLOR_BUFFER_BIT);
-		frame_count ++;
-	}
-
-	inline void cursor_capture(bool capture) {
-		winxSetCursorCapture(capture);
-	}
-
-	inline void cursor_hide(bool hidden) {
-		if (hidden) {
-			winxSetCursorIcon(impl::null_cursor);
-		} else {
-			winxSetCursorIcon(WINX_ICON_DEFAULT);
-		}
-	}
+	/**
+	 * @brief Makes the cursor invisible while it is over the application window.
+	 *
+	 * Makes mouse cursor not appear as long as it's
+	 * placed over the application window.
+	 *
+	 * @see plgl::cursor_capture(bool)
+	 *
+	 * @param[in] hidden Whether the mouse should be invisible while in the window bounds.
+	 */
+	void cursor_hide(bool hidden);
 
 }
