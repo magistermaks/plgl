@@ -83,7 +83,7 @@ void plgl::background(float r, float g, float b) {
 	glClearColor(impl::norm(r), impl::norm(g), impl::norm(b), 1.0);
 }
 
-void plgl::background(const impl::Color& color) {
+void plgl::background(const Color& color) {
 	RGBA rgba = color.as_rgba();
 	glClearColor(impl::norm(rgba.red()), impl::norm(rgba.green()), impl::norm(rgba.blue()), 1.0);
 }

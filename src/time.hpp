@@ -40,6 +40,9 @@ namespace plgl {
 
 	};
 
+	/**
+	 * Represents a point in time.
+	 */
 	class Time {
 
 		private:
@@ -53,63 +56,50 @@ namespace plgl {
 
 		public:
 
-			Time(std::chrono::time_point<ClockType> point)
-			: point(point), time(ClockType::to_time_t(point)), local(*localtime(&time)) {}
+			Time(std::chrono::time_point<ClockType> point);
 
-			static Time now() {
-				return {ClockType::now()};
-			}
+			/// Returns the current time
+			static Time now();
 
 		public:
 
-			int year() {
-				return local.tm_year + 1900;
-			}
+			/// Year date component
+			int year();
 
-			int month() {
-				return local.tm_mon + 1;
-			}
+			/// Month date component
+			int month();
 
-			int day() {
-				return local.tm_mday;
-			}
+			/// Day date component
+			int day();
 
-			int hour() {
-				return local.tm_hour;
-			}
+			/// Hour time component
+			int hour();
 
-			int minute() {
-				return local.tm_min;
-			}
+			/// Minute time component
+			int minute();
 
-			int second() {
-				return local.tm_sec;
-			}
+			/// Second time component
+			int second();
 
 		public:
 
-			// day of the year
-			int year_day() {
-				return local.tm_yday + 1;
-			}
+			/// Day of the year
+			int year_day();
 
-			// day of the week
-			int week_day() {
-				return local.tm_wday + 1;
-			}
+			/// Day of the week
+			int week_day();
 
-			// milliseconds since Unix Epoch
-			size_t mils_since_epoch() {
-				return std::chrono::duration_cast<std::chrono::milliseconds>(point.time_since_epoch()).count();
-			}
+			/// Milliseconds since Unix Epoch
+			size_t mils_since_epoch();
 
-			// seconds since Unix Epoch
-			size_t secs_since_epoch() {
-				return std::chrono::duration_cast<std::chrono::seconds>(point.time_since_epoch()).count();
-			}
+			/// Seconds since Unix Epoch
+			size_t secs_since_epoch();
 
 	};
 
+	/**
+	 * Represents a difference between two points in time.
+	 */
 	class Duration {
 
 		public:
@@ -118,19 +108,11 @@ namespace plgl {
 
 		public:
 
-			Duration(int hors, int mins, int secs, int mils = 0, int mics = 0, int nans = 0)
-			: hours(hors), minutes(mins), seconds(secs), milliseconds(mils), microseconds(mics), nanoseconds(nans) {}
-
+			Duration(int hors, int mins, int secs, int mils = 0, int mics = 0, int nans = 0);
 
 	};
 
-	inline Duration duration(const Time& start, const Time& end) {
-		auto [hors, mins, secs, mils, mics, nans] = impl::split_duration<
-			std::chrono::hours, std::chrono::minutes, std::chrono::seconds, std::chrono::milliseconds, std::chrono::microseconds, std::chrono::nanoseconds
-		>(end.point - start.point);
-
-		return Duration {hors, mins, secs, mils, mics, nans};
-	}
+	Duration duration(const Time& start, const Time& end);
 
 	// Usage:
 	//  * sleep(3s);                            - sleep for 3 seconds

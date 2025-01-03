@@ -191,7 +191,7 @@ namespace plgl {
 	 *
 	 * @param[in] color  The clear color to use
 	 */
-	void background(const impl::Color& color);
+	void background(const Color& color);
 
 	/**
 	 * @brief End frame rendering

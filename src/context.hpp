@@ -16,7 +16,7 @@ namespace plgl {
 		renderer->stroke(r, g, b, a);
 	}
 
-	inline void stroke(const impl::Color& color) {
+	inline void stroke(const Color& color) {
 		renderer->stroke(color);
 	}
 
@@ -36,7 +36,7 @@ namespace plgl {
 		renderer->fill(r, g, b, a);
 	}
 
-	inline void fill(const impl::Color& color) {
+	inline void fill(const Color& color) {
 		renderer->fill(color);
 	}
 
@@ -48,7 +48,7 @@ namespace plgl {
 		renderer->tint(r, g, b, a);
 	}
 
-	inline void tint(const impl::Color& color) {
+	inline void tint(const Color& color) {
 		renderer->tint(color);
 	}
 

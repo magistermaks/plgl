@@ -45,7 +45,7 @@ namespace plgl {
 				this->sa = impl::norm(a);
 			}
 
-			void stroke(const impl::Color& color) {
+			void stroke(const Color& color) {
 				RGBA rgba = color.as_rgba();
 				stroke(rgba.red(), rgba.green(), rgba.blue(), rgba.alpha());
 			}
@@ -71,7 +71,7 @@ namespace plgl {
 				this->fa = impl::norm(a);
 			}
 
-			void fill(const impl::Color& color) {
+			void fill(const Color& color) {
 				RGBA rgba = color.as_rgba();
 				fill(rgba.red(), rgba.green(), rgba.blue(), rgba.alpha());
 			}
@@ -87,7 +87,7 @@ namespace plgl {
 				this->ta = impl::norm(a);
 			}
 
-			void tint(const impl::Color& color) {
+			void tint(const Color& color) {
 				RGBA rgba = color.as_rgba();
 				tint(rgba.red(), rgba.green(), rgba.blue(), rgba.alpha());
 			}
