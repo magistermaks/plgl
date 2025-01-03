@@ -1,12 +1,16 @@
 #pragma once
 
 // libraries
-#include <lib/glad.h>
+#include <glad/glad.h>
 #include <lib/winx.h>
 #include <lib/truetype.h>
-#include <lib/stb_image.h>
-#include <lib/stb_image_write.h>
 #include <lib/perlin.hpp>
+
+// STB
+#define STB_VORBIS_HEADER_ONLY
+#include "stb_vorbis.c"
+#include "stb_image.h"
+#include "stb_image_write.h"
 
 // C stdlib
 #include <cstdio>

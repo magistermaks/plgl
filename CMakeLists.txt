@@ -41,39 +41,52 @@ endif()
 FetchContent_Declare(
 		stb
 		GIT_REPOSITORY https://github.com/nothings/stb
-		GIT_TAG 5736b15f7ea0ffb08dd38af21067c314d6a3aae9
+		GIT_TAG 5c205738c191bcb0abc65c4febfa9bd25ff35234
 		GIT_PROGRESS TRUE
 )
 
-FetchContent_MakeAvailable(stb)
+FetchContent_Declare(
+		glad
+		GIT_REPOSITORY https://github.com/Dav1dde/glad.git
+		GIT_TAG v0.1.36
+)
+
+set(GLAD_PROFILE "core"	CACHE STRING "OpenGL profile")
+set(GLAD_GENERATOR "c"	CACHE STRING "Language to generate the binding for")
+
+FetchContent_MakeAvailable(stb glad)
 
 include_directories(
 		.
 		lib/
 		src/
 		${stb_SOURCE_DIR}                        # Headers in ./
+		${GLAD_INCLUDE_DIRS}                     # Headers in ./glad/
 )
 
 file(GLOB_RECURSE PLGL_SOURCES
 		"src/*.cpp"
 )
 
-#add_library(external
-#		lib/stb_image.cpp
-#		lib/stb_image_write.cpp
-#		lib/stb_vorbis.cpp
-#)
+add_library(external
+		lib/stb_image.cpp
+		lib/stb_image_write.cpp
+		lib/stb_vorbis.cpp
+)
 
 add_library(PLGL
 		${PLGL_SOURCES}
 )
 
 set(PLGL_LIBS
+		WINX
 		Threads::Threads
-#		external
+		external
+		glad
+		${X11_LIBRARIES}
 )
 
-target_link_libraries(PLGL PRIVATE ${PLGL_LIBS})
+target_link_libraries(PLGL ${PLGL_LIBS})
 target_compile_definitions(PLGL PRIVATE "SOURCE_ROOT=\"${CMAKE_SOURCE_DIR}\"")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

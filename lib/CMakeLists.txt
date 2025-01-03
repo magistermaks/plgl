@@ -10,13 +10,3 @@ target_link_libraries(WINX
 	OpenGL::GLX 
 	OpenGL::OpenGL
 )
-
-add_library(GLAD STATIC
-    glad.c
-)
-
-target_link_libraries(GLAD
-	Threads::Threads
-	OpenGL::GLX 
-	OpenGL::OpenGL
-)
