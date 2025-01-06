@@ -1,5 +1,6 @@
 #pragma once
 
+#include "external.hpp"
 #include "image.hpp"
 
 namespace plgl {
@@ -13,86 +14,37 @@ namespace plgl {
 			int width;
 			int height;
 
-			GLenum getFormat(int channels) {
-				switch (channels) {
-					case 4: return GL_RGBA;
-					case 3: return GL_RGB;
-					case 1: return GL_ALPHA;
-				}
-
-				impl::fatal("Unsuported texture channel count: %s!", channels);
-			}
-
-			void upload(const void* data, size_t width, size_t height, size_t channels) {
-				glBindTexture(GL_TEXTURE_2D, tid);
-
-				// upload texture data
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, getFormat(channels), GL_UNSIGNED_BYTE, data);
-		    	glGenerateMipmap(GL_TEXTURE_2D);
-
-				this->channels = channels;
-				this->width = width;
-				this->height = height;
-			}
+			static GLenum getFormat(int channels);
+			void upload(const void* data, size_t width, size_t height, size_t channels);
 
 		public:
 
-			Texture() {
-				glGenTextures(1, &tid);
-				glBindTexture(GL_TEXTURE_2D, tid);
+			Texture();
+			Texture(const char* path);
 
-				// set texture wrapping
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+			/// Free resources associated with this texture
+			void close();
 
-				// set texture filtering
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			}
+			/// Bind this OpenGL Texture
+			void use() const;
 
-			Texture(const char* path) : Texture() {
-				Image image = Image::loadFromFile(path);
-				upload(image);
-				image.close();
-			}
+			/// Upload an image into this Texture
+			void upload(Image& image);
 
-			void close() {
-				glDeleteTextures(1, &tid);
-			}
+			/// Get OpenGL Texture handle
+			GLuint getTid() const;
 
-			void upload(Image& image) {
-				upload(image.data(), image.width(), image.height(), image.channels());
-			}
+			/// Get image width in pixels
+			int getWidth() const;
 
-			void use() const {
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, tid);
-			}
+			/// Get image height in pixels
+			int getHeight() const;
 
-			GLuint getTid() const {
-				return tid;
-			}
+			/// Copy image from from Texture into a Image buffer
+			Image getPixels() const;
 
-			int getWidth() const {
-				return width;
-			}
-
-			int getHeight() const {
-				return height;
-			}
-
-			Image getPixels() const {
-				Image image = Image::allocate(width, height, 4);
-				glBindTexture(GL_TEXTURE_2D, tid);
-				glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.data());
-				return image;
-			}
-
-			void save(const std::string& path) const {
-				Image image = getPixels();
-				image.save(path);
-				image.close();
-			}
+			/// Copy image from Texture and save it into a file
+			void save(const std::string& path) const;
 
 	};
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "external.hpp"
+#include "internal.hpp"
 
 namespace plgl {
 

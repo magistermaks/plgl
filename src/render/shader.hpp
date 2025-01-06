@@ -1,5 +1,7 @@
 #pragma once
 
+#include "external.hpp"
+
 namespace plgl {
 
 	class Shader {
@@ -7,41 +9,18 @@ namespace plgl {
 		private:
 
 			GLuint program;
-
-			GLuint compile(GLenum type, const char* source) {
-				GLuint shader = glCreateShader(type);
-				glShaderSource(shader, 1, &source, NULL);
-				glCompileShader(shader);
-
-				return shader;
-			}		
+			GLuint compile(GLenum type, const char* source);
 
 		public:
 
-			Shader(const char* vertex_source, const char* fragment_source) {
-				GLuint vert = compile(GL_VERTEX_SHADER, vertex_source);
-				GLuint frag = compile(GL_FRAGMENT_SHADER, fragment_source);
+			Shader(const char* vertex_source, const char* fragment_source);
+			~Shader();
 
-				program = glCreateProgram();
-				glAttachShader(program, vert);
-				glAttachShader(program, frag);
-				glLinkProgram(program);
+			/// Bind this OpenGL Shader
+			void use();
 
-				glDeleteShader(vert);
-				glDeleteShader(frag);
-			}
-
-			~Shader() {
-				glDeleteProgram(program);
-			}
-
-			int uniform(const char* name) {
-				return glGetUniformLocation(program, name);
-			}
-
-			void use() {
-				glUseProgram(program);
-			}
+			/// Get OpenGL uniform location
+			int uniform(const char* name);
 
 	};
 

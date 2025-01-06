@@ -7,8 +7,6 @@ namespace plgl {
 		POINTS = GL_POINT
 	};
 
-	inline void polygon(PolygonMode mode) {
-		glPolygonMode(GL_FRONT_AND_BACK, mode);
-	}
+	void polygon(PolygonMode mode);
 
 }

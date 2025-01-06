@@ -39,10 +39,10 @@ namespace plgl {
 
 			void stroke(float r, float g, float b, float a = 255) {
 				this->stroke_flag = true;
-				this->sr = impl::norm(r);
-				this->sg = impl::norm(g);
-				this->sb = impl::norm(b);
-				this->sa = impl::norm(a);
+				this->sr = r;
+				this->sg = g;
+				this->sb = b;
+				this->sa = a;
 			}
 
 			void stroke(const Color& color) {
@@ -65,10 +65,10 @@ namespace plgl {
 
 			void fill(float r, float g, float b, float a = 255) {
 				this->fill_flag = true;
-				this->fr = impl::norm(r);
-				this->fg = impl::norm(g);
-				this->fb = impl::norm(b);
-				this->fa = impl::norm(a);
+				this->fr = r;
+				this->fg = g;
+				this->fb = b;
+				this->fa = a;
 			}
 
 			void fill(const Color& color) {
@@ -81,10 +81,10 @@ namespace plgl {
 			}
 
 			void tint(float r, float g, float b, float a = 255) {
-				this->tr = impl::norm(r);
-				this->tg = impl::norm(g);
-				this->tb = impl::norm(b);
-				this->ta = impl::norm(a);
+				this->tr = r;
+				this->tg = g;
+				this->tb = b;
+				this->ta = a;
 			}
 
 			void tint(const Color& color) {
