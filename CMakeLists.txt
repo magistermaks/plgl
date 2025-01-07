@@ -35,21 +35,24 @@ endif()
 #		openal
 #		GIT_REPOSITORY https://github.com/kcat/openal-soft
 #		GIT_TAG 1.23.1
-#		GIT_PROGRESS TRUE
 #)
+
+FetchContent_Declare(
+		msdfgen
+		GIT_REPOSITORY https://github.com/Chlumsky/msdfgen
+		GIT_TAG v1.12
+)
 
 FetchContent_Declare(
 		winx
 		GIT_REPOSITORY https://github.com/dark-tree/winx
 		GIT_TAG 6bc5283274e4ceb714a8f551bc446aaa2991ec53
-		GIT_PROGRESS TRUE
 )
 
 FetchContent_Declare(
 		stb
 		GIT_REPOSITORY https://github.com/nothings/stb
 		GIT_TAG 5c205738c191bcb0abc65c4febfa9bd25ff35234
-		GIT_PROGRESS TRUE
 )
 
 FetchContent_Declare(
@@ -61,7 +64,13 @@ FetchContent_Declare(
 set(GLAD_PROFILE "core"	CACHE STRING "OpenGL profile")
 set(GLAD_GENERATOR "c"	CACHE STRING "Language to generate the binding for")
 
-FetchContent_MakeAvailable(winx stb glad)
+set(MSDFGEN_DISABLE_SVG ON CACHE BOOL "" FORCE)
+set(MSDFGEN_DISABLE_PNG ON CACHE BOOL "" FORCE)
+set(MSDFGEN_USE_SKIA OFF CACHE BOOL "" FORCE)
+set(MSDFGEN_USE_VCPKG OFF CACHE BOOL "" FORCE)
+set(MSDFGEN_BUILD_STANDALONE OFF CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(winx stb glad msdfgen)
 
 include_directories(
 		.
@@ -92,6 +101,8 @@ set(PLGL_LIBS
 		winx
 		external
 		glad
+		msdfgen::msdfgen-core
+		msdfgen::msdfgen-ext
 )
 
 target_link_libraries(PLGL PRIVATE ${PLGL_LIBS})

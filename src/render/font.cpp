@@ -1,7 +1,53 @@
 
 #include "font.hpp"
+#include "atlas.hpp"
+
+#include "msdfgen.h"
+#include "msdfgen-ext.h"
 
 namespace plgl {
+
+	static bool loadUnicode(msdfgen::FontHandle* font, uint32_t unicode, float scale, float trans, float range, Image& image, GlyphInfo& info) {
+		msdfgen::Shape shape;
+
+		if (loadGlyph(shape, font, unicode, msdfgen::FONT_SCALING_EM_NORMALIZED, &info.advance)) {
+			shape.normalize();
+
+			info.advance *= scale;
+
+			auto box = shape.getBounds();
+			info.xoff = (box.l - trans) * scale;
+			info.yoff = (box.b - trans) * scale;
+
+			edgeColoringSimple(shape, 3.0);
+
+			msdfgen::Bitmap<float, 3> msdf(image.width(), image.height());
+
+			msdfgen::SDFTransformation transform {
+				msdfgen::Projection(scale, msdfgen::Vector2(trans, trans)),
+				msdfgen::Range(range)
+			};
+
+			msdfgen::generateMSDF(msdf, shape, transform);
+
+			for (int x = 0; x < msdf.width(); x ++) {
+				for (int y = 0; y < msdf.height(); y ++) {
+					float* pixel = msdf(x, y);
+
+					uint8_t r = msdfgen::pixelFloatToByte(pixel[0]);
+					uint8_t g = msdfgen::pixelFloatToByte(pixel[1]);
+					uint8_t b = msdfgen::pixelFloatToByte(pixel[2]);
+					uint8_t a = msdfgen::pixelFloatToByte(pixel[3]);
+
+					image.pixel(x, y).set(r, g, b, a);
+				}
+			}
+
+			return true;
+		}
+
+		return false;
+	}
 
 	/*
 	 * Font
@@ -9,45 +55,49 @@ namespace plgl {
 
 	Font::Font(const char* path, float height) : Texture() {
 
-		// open file
-		std::ifstream file(path, std::ios::binary | std::ios::ate);
-		unsigned int length = file.tellg();
-		file.seekg(0, std::ios::beg);
-
-		// prepare buffer
-		std::vector<char> buffer;
-		buffer.reserve(length);
-
-		// load file into buffer
-		if (!file.read(buffer.data(), length)) {
-			impl::fatal("Unable to load font: '%s'!", path);
-		}
-
 		this->base = height;
-		int size = 256;
-		bool build = false;
 
-		while (!build) {
-			size *= 2;
+		Atlas atlas;
+		Image image = Image::allocate(128, 128);
 
-			unsigned char* bitmap = new unsigned char[size * size];
-			int magic = stbtt_BakeFontBitmap((unsigned char*) buffer.data(), 0, height, bitmap, size, size, 32, 96, cdata);
-			//printf("PLGL: Baked font '%s' into %dx%d bitmap, magic=%d\n", path, size, size, magic);
+		if (msdfgen::FreetypeHandle* freetype = msdfgen::initializeFreetype()) {
+			if (msdfgen::FontHandle* font = loadFont(freetype, path)) {
 
-			float ascent;
-			float descent;
-			//float lineGap;
+				for (int unicode = ' '; unicode <= '~'; unicode ++) {
 
-			stbtt_GetScaledFontVMetrics((unsigned char*) buffer.data(), 0, size, &ascent, &descent, &lineGap);
-			printf("ascent=%f, descent=%f, lineGap=%f\n", ascent, descent, lineGap);
+					GlyphInfo info;
+					if (loadUnicode(font, unicode, 128, 0.125, 0.125, image, info)) {
 
-			if (magic > 0) {
-				upload(bitmap, size, size, 1);
-				build = true;
+						Sprite sprite = atlas.submitImage(image);
+
+						info.x0 = sprite.x;
+						info.y0 = sprite.y + sprite.h;
+						info.x1 = sprite.x + sprite.w;
+						info.y1 = sprite.y;
+
+						cdata[unicode - ' '] = info;
+
+					} else {
+						throw std::runtime_error {"Failed to load glyph at unicode: " + std::to_string(unicode)};
+					}
+
+				}
+
+				destroyFont(font);
+			} else {
+				throw std::runtime_error {std::string ("Failed to open font: '") + path + "'"};
 			}
 
-			delete[] bitmap;
+
+			deinitializeFreetype(freetype);
 		}
+
+		Image& combined = atlas.getImage();
+		image.close();
+
+		upload(combined.data(), combined.width(), combined.height(), 4);
+		atlas.close();
+
 	}
 
 	float Font::getScaleForSize(float size) const {
@@ -66,7 +116,8 @@ namespace plgl {
 		float iw = 1.0f / width;
 		float ih = 1.0f / height;
 
-		const stbtt_bakedchar* info = cdata + index;
+		const GlyphInfo* info = cdata + index;
+
 		int round_x = (int) floor((*x + info->xoff * scale) + 0.5f);
 		int round_y = (int) floor((*y + info->yoff * scale) + 0.5f);
 
@@ -76,13 +127,13 @@ namespace plgl {
 		quad.y1 = round_y + (info->y1 - info->y0) * scale;
 
 		quad.s0 = info->x0 * iw;
-		quad.t0 = info->y0 * ih;
+		quad.t0 = info->y1 * ih;
 		quad.s1 = info->x1 * iw;
-		quad.t1 = info->y1 * ih;
+		quad.t1 = info->y0 * ih;
 
-		*x += info->xadvance * scale;
-
+		*x += info->advance * scale;
 		return quad;
+
 	}
 
 }
