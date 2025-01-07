@@ -7,6 +7,9 @@ namespace plgl {
 		POINTS = GL_POINT
 	};
 
+	/**
+	 * Changes the way geometry is drawn to the screen
+	 */
 	void polygon(PolygonMode mode);
 
 }

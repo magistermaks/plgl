@@ -80,12 +80,12 @@ void plgl::title(const std::string& title) {
 }
 
 void plgl::background(float r, float g, float b) {
-	glClearColor(impl::norm(r), impl::norm(g), impl::norm(b), 1.0);
+	glClearColor(impl::normalize(r), impl::normalize(g), impl::normalize(b), 1.0);
 }
 
 void plgl::background(const Color& color) {
 	RGBA rgba = color.as_rgba();
-	glClearColor(impl::norm(rgba.red()), impl::norm(rgba.green()), impl::norm(rgba.blue()), 1.0);
+	glClearColor(impl::normalize(rgba.red()), impl::normalize(rgba.green()), impl::normalize(rgba.blue()), 1.0);
 }
 
 void plgl::swap() {

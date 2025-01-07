@@ -32,9 +32,9 @@ namespace plgl {
 
 	// https://stackoverflow.com/a/9493060
 	HSLA RGBA::hsla() const {
-		float r = impl::norm(this->r);
-		float g = impl::norm(this->g);
-		float b = impl::norm(this->b);
+		float r = impl::normalize(this->r);
+		float g = impl::normalize(this->g);
+		float b = impl::normalize(this->b);
 
 		float vmax = std::max({r, g, b});
 		float vmin = std::min({r, g, b});
@@ -80,15 +80,15 @@ namespace plgl {
 	}
 
 	int RGBA::pack_rgb() const {
-		return impl::renorm(b) | (impl::renorm(g) << 8) | (impl::renorm(r) << 16);
+		return impl::denormalize(b) | (impl::denormalize(g) << 8) | (impl::denormalize(r) << 16);
 	}
 
 	int RGBA::pack_argb() const {
-		return pack_rgb() + (impl::renorm(a) << 24);
+		return pack_rgb() + (impl::denormalize(a) << 24);
 	}
 
 	std::string RGBA::str() const {
-		return format("rgba(%s, %s, %s, %s)", impl::renorm(r), impl::renorm(g), impl::renorm(b), impl::renorm(a));
+		return format("rgba(%s, %s, %s, %s)", impl::denormalize(r), impl::denormalize(g), impl::denormalize(b), impl::denormalize(a));
 	}
 
 	/*
@@ -148,7 +148,7 @@ namespace plgl {
 	}
 
 	std::string HSLA::str() const {
-		return format("hsla(%s, %s%%, %s%%, %s)", (int) round((h / TAU) * 360), (int) round(s * 100), (int) round(l * 100), impl::renorm(a));
+		return format("hsla(%s, %s%%, %s%%, %s)", (int) round((h / TAU) * 360), (int) round(s * 100), (int) round(l * 100), impl::denormalize(a));
 	}
 
 

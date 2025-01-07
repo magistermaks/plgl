@@ -3,7 +3,6 @@
 // libraries
 #include <glad/glad.h>
 #include <winx.h>
-#include <lib/truetype.h>
 #include <lib/perlin.hpp>
 
 // STB
@@ -11,6 +10,7 @@
 #include "stb_vorbis.c"
 #include "stb_image.h"
 #include "stb_image_write.h"
+#include "stb_truetype.h"
 
 // C stdlib
 #include <cstdio>

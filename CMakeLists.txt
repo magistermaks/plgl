@@ -80,6 +80,7 @@ add_library(external
 		lib/stb_image.cpp
 		lib/stb_image_write.cpp
 		lib/stb_vorbis.cpp
+		lib/stb_truetype.cpp
 )
 
 add_library(PLGL
@@ -93,7 +94,7 @@ set(PLGL_LIBS
 		glad
 )
 
-target_link_libraries(PLGL ${PLGL_LIBS})
+target_link_libraries(PLGL PRIVATE ${PLGL_LIBS})
 target_compile_definitions(PLGL PRIVATE "SOURCE_ROOT=\"${CMAKE_SOURCE_DIR}\"")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

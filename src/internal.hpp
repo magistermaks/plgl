@@ -15,11 +15,11 @@ namespace plgl {
 			return y / plgl::height * -2 + 1;
 		}
 
-		inline float norm(float value) {
+		inline float normalize(float value) {
 			return value / 255.0f;
 		}
 
-		inline int renorm(float value) {
+		inline int denormalize(float value) {
 			return (int) std::min(std::floor(value * 1.003921568627451f), 255.0f);
 		}
 
