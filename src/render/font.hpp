@@ -2,6 +2,10 @@
 
 #include "texture.hpp"
 
+namespace msdfgen {
+	struct FontHandle;
+}
+
 namespace plgl {
 
 	struct GlyphInfo {
@@ -21,6 +25,7 @@ namespace plgl {
 			float base;
 			GlyphInfo cdata[96]; // ASCII 32 (space) .. 126 (~) is 95 glyphs
 			float lineGap;
+			msdfgen::FontHandle* handle;
 
 		public:
 
@@ -28,7 +33,7 @@ namespace plgl {
 
 			float getScaleForSize(float size) const;
 			float getFontLineGap() const;
-			stbtt_aligned_quad getBakedQuad(float* x, float* y, int code, float scale) const;
+			stbtt_aligned_quad getBakedQuad(float* x, float* y, int code, float scale, int prev = 0) const;
 
 	};
 

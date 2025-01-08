@@ -370,8 +370,11 @@ namespace plgl {
 
 				Font& font = (Font&) getTexture();
 
-				for (char chr : str) {
-					stbtt_aligned_quad q = font.getBakedQuad(&x, &y, chr, font.getScaleForSize(text_size));
+				for (int i = 0; i < str.size(); i ++) {
+					char chr = str[i];
+					char prv = i > 0 ? str[i - 1] : 0;
+
+					stbtt_aligned_quad q = font.getBakedQuad(&x, &y, chr, font.getScaleForSize(text_size), prv);
 
 					ivert(q.x0, q.y1, q.s0, q.t1);
 					ivert(q.x0, q.y0, q.s0, q.t0);

@@ -9,7 +9,7 @@ int main() {
 
 	bool clip_mode = false;
 	Texture cat {"assets/cat.png"};
-	Font fnt {"assets/font2.ttf", 100};
+	Font fnt {"assets/Times New Roman.ttf", 100};
 
 	listen(WINDOW_CLOSE, [] () {
 		printf("Goodbye!\n");

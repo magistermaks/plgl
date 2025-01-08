@@ -7,25 +7,30 @@
 
 namespace plgl {
 
-	static bool loadUnicode(msdfgen::FontHandle* font, uint32_t unicode, float scale, float trans, float range, Image& image, GlyphInfo& info) {
+	static msdfgen::FreetypeHandle* freetype = msdfgen::initializeFreetype();
+
+	static bool loadUnicode(msdfgen::FontHandle* font, uint32_t unicode, float scale, float range, Image& image, GlyphInfo& info) {
 		msdfgen::Shape shape;
 
 		if (loadGlyph(shape, font, unicode, msdfgen::FONT_SCALING_EM_NORMALIZED, &info.advance)) {
 			shape.normalize();
 
 			info.advance *= scale;
-
 			auto box = shape.getBounds();
-			info.xoff = (box.l - trans) * scale;
-			info.yoff = (box.b - trans) * scale;
+
+			float tx = (1 - (box.r - box.l)) * 0.5f - box.l;
+			float ty = (1 - (box.t - box.b)) * 0.5f - box.b;
+
+			info.xoff = ( - tx) * scale;
+			info.yoff = ty * scale;
 
 			edgeColoringSimple(shape, 3.0);
 
 			msdfgen::Bitmap<float, 3> msdf(image.width(), image.height());
 
 			msdfgen::SDFTransformation transform {
-				msdfgen::Projection(scale, msdfgen::Vector2(trans, trans)),
-				msdfgen::Range(range)
+				msdfgen::Projection(scale, msdfgen::Vector2(tx, ty)),
+				msdfgen::Range(range) / scale
 			};
 
 			msdfgen::generateMSDF(msdf, shape, transform);
@@ -55,42 +60,51 @@ namespace plgl {
 
 	Font::Font(const char* path, float height) : Texture() {
 
-		this->base = height;
+		this->base = 100;
+
+		if (!freetype) {
+			throw std::runtime_error {"Failed to start Free Type library!"};
+		}
+
+		this->handle = loadFont(freetype, path);
+
+		if (!handle) {
+			throw std::runtime_error {std::string ("Failed to open font: '") + path + "'"};
+		}
 
 		Atlas atlas;
-		Image image = Image::allocate(128, 128);
+		Image image = Image::allocate(64, 64);
 
-		if (msdfgen::FreetypeHandle* freetype = msdfgen::initializeFreetype()) {
-			if (msdfgen::FontHandle* font = loadFont(freetype, path)) {
+		std::vector<msdfgen::FontVariationAxis> axes;
+		msdfgen::listFontVariationAxes(axes, freetype, handle);
 
-				for (int unicode = ' '; unicode <= '~'; unicode ++) {
+		for (auto axis : axes) {
+			printf(" * Axis: %s\n", axis.name);
+		}
 
-					GlyphInfo info;
-					if (loadUnicode(font, unicode, 128, 0.125, 0.125, image, info)) {
+		//msdfgen::setFontVariationAxis(freetype, handle, "Weight", 400);
 
-						Sprite sprite = atlas.submitImage(image);
+		for (int unicode = ' '; unicode <= '~'; unicode ++) {
 
-						info.x0 = sprite.x;
-						info.y0 = sprite.y + sprite.h;
-						info.x1 = sprite.x + sprite.w;
-						info.y1 = sprite.y;
+			GlyphInfo info;
+			if (loadUnicode(handle, unicode, 64, 6, image, info)) {
 
-						cdata[unicode - ' '] = info;
+				Sprite sprite = atlas.submitImage(image);
 
-					} else {
-						throw std::runtime_error {"Failed to load glyph at unicode: " + std::to_string(unicode)};
-					}
+				info.x0 = sprite.x;
+				info.y0 = sprite.y + sprite.h;
+				info.x1 = sprite.x + sprite.w;
+				info.y1 = sprite.y;
 
-				}
+				cdata[unicode - ' '] = info;
 
-				destroyFont(font);
 			} else {
-				throw std::runtime_error {std::string ("Failed to open font: '") + path + "'"};
+				throw std::runtime_error {"Failed to load glyph at unicode: " + std::to_string(unicode)};
 			}
 
-
-			deinitializeFreetype(freetype);
 		}
+
+		//destroyFont(font);
 
 		Image& combined = atlas.getImage();
 		image.close();
@@ -108,20 +122,31 @@ namespace plgl {
 
 	}
 
-	stbtt_aligned_quad Font::getBakedQuad(float* x, float* y, int code, float scale) const {
+	stbtt_aligned_quad Font::getBakedQuad(float* x, float* y, int code, float scale, int prev) const {
 
 		stbtt_aligned_quad quad;
+
+		// double &output, FontHandle *font, GlyphIndex glyphIndex0, GlyphIndex glyphIndex1, FontCoordinateScaling coordinateScaling
+		double kerning = 0;
 
 		int index = code - 32;
 		float iw = 1.0f / width;
 		float ih = 1.0f / height;
+
+		if (prev != 0) {
+			msdfgen::getKerning(kerning, handle, prev, code, msdfgen::FONT_SCALING_EM_NORMALIZED);
+		}
+
+		if (kerning != 0) {
+			kerning = kerning;
+		}
 
 		const GlyphInfo* info = cdata + index;
 
 		int round_x = (int) floor((*x + info->xoff * scale) + 0.5f);
 		int round_y = (int) floor((*y + info->yoff * scale) + 0.5f);
 
-		quad.x0 = round_x;
+		quad.x0 = round_x + kerning * base * scale;
 		quad.y0 = round_y;
 		quad.x1 = round_x + (info->x1 - info->x0) * scale;
 		quad.y1 = round_y + (info->y1 - info->y0) * scale;

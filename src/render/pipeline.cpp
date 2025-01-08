@@ -108,17 +108,17 @@ namespace plgl {
 			}
 
 			float screenPxRange() {
-				return 4.5f;
+				// simple - 7.5
+				// aqmol2 - 1.8
+				return 7.5f;
 			}
 
 			void main() {
-				vec4 bgColor = vec4(1, 1, 1, 0);
-
 				vec3 msd = texture(sampler, vTex).rgb;
 				float sd = median(msd.r, msd.g, msd.b);
 				float screenPxDistance = screenPxRange()*(sd - 0.5);
 				float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
-				fColor = mix(bgColor, vColor, opacity);
+				fColor = vec4(vColor.rgb, vColor.a * opacity);
 			}
 
 		)";
