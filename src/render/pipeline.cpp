@@ -59,7 +59,7 @@ namespace plgl {
 		static const char* fragment = R"(
 			#version 330 core
 
-			uniform sampler2D sampler;
+			uniform sampler2D uSampler;
 
 			in vec4 vColor;
 			in vec2 vTex;
@@ -67,7 +67,7 @@ namespace plgl {
 			out vec4 fColor;
 
 			void main(){
-				fColor = texture(sampler, vTex).rgba * vColor;
+				fColor = texture(uSampler, vTex).rgba * vColor;
 			}
 		)";
 
@@ -96,7 +96,7 @@ namespace plgl {
 		static const char* fragment = R"(
 			#version 330 core
 
-			uniform sampler2D sampler;
+			uniform sampler2D uSampler;
 
 			in vec4 vColor;
 			in vec2 vTex;
@@ -107,17 +107,20 @@ namespace plgl {
 				return max(min(r, g), min(max(r, g), b));
 			}
 
-			float screenPxRange() {
-				// simple - 7.5
-				// aqmol2 - 1.8
-				return 7.5f;
+
+			// font_size / 64 * 6
+			float range() {
+				// this, i think, is both incorrect and unadvised, but it works for now
+				vec2 unitRange = vec2(6)/vec2(textureSize(uSampler, 0));
+				vec2 screenTexSize = vec2(1.0)/fwidth(vTex);
+				return max(0.5*dot(unitRange, screenTexSize), 1.0);
 			}
 
 			void main() {
-				vec3 msd = texture(sampler, vTex).rgb;
-				float sd = median(msd.r, msd.g, msd.b);
-				float screenPxDistance = screenPxRange()*(sd - 0.5);
-				float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
+				vec3 fields = texture(uSampler, vTex).rgb;
+				float distance = median(fields.x, fields.y, fields.z);
+				float screen = range() * (distance - 0.5);
+				float opacity = clamp(screen + 0.5, 0.0, 1.0);
 				fColor = vec4(vColor.rgb, vColor.a * opacity);
 			}
 
@@ -129,8 +132,10 @@ namespace plgl {
 
 	Pipeline::Pipeline(Shader& shader, Texture* texture)
 	: buffer({}), shader(shader), texture(texture) {
+		shader.use();
+
 		if (texture) {
-			glUniform1i(shader.uniform("sampler"), 0);
+			glUniform1i(shader.uniform("uSampler"), 0);
 		}
 	}
 

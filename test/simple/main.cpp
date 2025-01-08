@@ -61,7 +61,7 @@ int main() {
 		tint(255, 70, 70);
 		font(fnt);
 		size(80);
-		text(10, height - 40, "Hello World!");
+		text(10, height - 40, "Cześć Świecie!");
 
 		size(30);
 		textf(10, height - 10, "Hello %s World %s", "Brave New", "from PLGL!", "OwO");

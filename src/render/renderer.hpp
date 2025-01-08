@@ -10,6 +10,7 @@
 #include "basic.hpp"
 #include "arc.hpp"
 #include "atlas.hpp"
+#include "utf8.hpp"
 
 namespace plgl {
 
@@ -369,12 +370,24 @@ namespace plgl {
 				use(fonts_pipeline);
 
 				Font& font = (Font&) getTexture();
+				int unicode = 0;
+				int prev = 0;
+				int offset = 0;
 
-				for (int i = 0; i < str.size(); i ++) {
-					char chr = str[i];
-					char prv = i > 0 ? str[i - 1] : 0;
+				while (true) {
+					bool reallocated = false;
+					prev = unicode;
+					unicode = next_unicode(str.c_str(), &offset);
 
-					stbtt_aligned_quad q = font.getBakedQuad(&x, &y, chr, font.getScaleForSize(text_size), prv);
+					if (unicode == 0) {
+						break;
+					}
+
+					stbtt_aligned_quad q = font.getBakedQuad(&reallocated, &x, &y, unicode, font.getScaleForSize(text_size), prev);
+
+					if (reallocated) {
+						flush();
+					}
 
 					ivert(q.x0, q.y1, q.s0, q.t1);
 					ivert(q.x0, q.y0, q.s0, q.t0);

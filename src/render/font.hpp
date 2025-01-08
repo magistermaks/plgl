@@ -1,6 +1,7 @@
 #pragma once
 
 #include "texture.hpp"
+#include "atlas.hpp"
 
 namespace msdfgen {
 	struct FontHandle;
@@ -20,12 +21,19 @@ namespace plgl {
 
 	class Font : public Texture {
 
+		private:
+
+			bool loadUnicode(msdfgen::FontHandle* font, uint32_t unicode, int size, float scale, float range, bool* flush);
+
+			bool modified = false;
+			Atlas atlas;
+
 		public:
 
 			float base;
-			GlyphInfo cdata[96]; // ASCII 32 (space) .. 126 (~) is 95 glyphs
 			float lineGap;
 			msdfgen::FontHandle* handle;
+			std::unordered_map<int, GlyphInfo> cdata;
 
 		public:
 
@@ -33,7 +41,9 @@ namespace plgl {
 
 			float getScaleForSize(float size) const;
 			float getFontLineGap() const;
-			stbtt_aligned_quad getBakedQuad(float* x, float* y, int code, float scale, int prev = 0) const;
+			stbtt_aligned_quad getBakedQuad(bool* flush, float* x, float* y, int code, float scale, int prev = 0);
+
+			void prepare();
 
 	};
 
