@@ -12,6 +12,7 @@ set(OpenGL_GL_PREFERENCE GLVND)
 find_package(Threads REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(X11 REQUIRED)
+find_package(Freetype REQUIRED)
 
 # Try: cmake . -B build && cmake --build build/
 if (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
@@ -89,7 +90,6 @@ add_library(external
 		lib/stb_image.cpp
 		lib/stb_image_write.cpp
 		lib/stb_vorbis.cpp
-		lib/stb_truetype.cpp
 )
 
 add_library(PLGL
@@ -103,6 +103,7 @@ set(PLGL_LIBS
 		glad
 		msdfgen::msdfgen-core
 		msdfgen::msdfgen-ext
+		Freetype::Freetype
 )
 
 target_link_libraries(PLGL PRIVATE ${PLGL_LIBS})

@@ -383,7 +383,7 @@ namespace plgl {
 						break;
 					}
 
-					stbtt_aligned_quad q = font.getBakedQuad(&reallocated, &x, &y, unicode, font.getScaleForSize(text_size), prev);
+					GlyphQuad q = font.getBakedQuad(&reallocated, &x, &y, unicode, font.getScaleForSize(text_size), prev);
 
 					if (reallocated) {
 						flush();
@@ -454,13 +454,9 @@ namespace plgl {
 
 				rect(rx, ry, rw, rh, radius_size);
 
-				use(fonts_pipeline);
-
-				Font& font = (Font&) getTexture();
-
 				size(text_size);
 				stroke(0, 0, 0);
-				textf(rx, ry + font.lineGap * font.getScaleForSize(text_size) + rh / 2, "ABCdef!");
+				textf(rx, ry + rh / 2, "ABCdef!");
 
 			}
 

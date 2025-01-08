@@ -5,9 +5,21 @@
 #include "msdfgen.h"
 #include "msdfgen-ext.h"
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 namespace plgl {
 
 	static msdfgen::FreetypeHandle* freetype = msdfgen::initializeFreetype();
+
+	/*
+	 * Font
+	 */
+
+	static FT_Face getFreeType(msdfgen::FontHandle* font) {
+		// get around the fact there is no official way to access the underlying freetype font object
+		return *reinterpret_cast<FT_Face*>(font);
+	}
 
 	bool Font::loadUnicode(msdfgen::FontHandle* font, uint32_t unicode, int size, float scale, float range, bool* flush) {
 		msdfgen::Shape shape;
@@ -69,16 +81,12 @@ namespace plgl {
 		return false;
 	}
 
-	/*
-	 * Font
-	 */
-
-	Font::Font(const char* path, float height) : Texture() {
+	Font::Font(const char* path, int weight) : Texture() {
 
 		this->base = 100;
 
 		if (!freetype) {
-			throw std::runtime_error {"Failed to start Free Type library!"};
+			throw std::runtime_error {"Failed to initialize FreeType library!"};
 		}
 
 		this->handle = loadFont(freetype, path);
@@ -90,11 +98,15 @@ namespace plgl {
 		std::vector<msdfgen::FontVariationAxis> axes;
 		msdfgen::listFontVariationAxes(axes, freetype, handle);
 
+		FT_Face face = getFreeType(this->handle);
+		printf("Loaded font '%s'", face->family_name);
+
 		for (auto axis : axes) {
-			printf(" * Axis: %s\n", axis.name);
+			printf(" [Axis: '%s']", axis.name);
 		}
 
-		msdfgen::setFontVariationAxis(freetype, handle, "Weight", 400);
+		printf("\n");
+		msdfgen::setFontVariationAxis(freetype, handle, "Weight", weight);
 
 	}
 
@@ -107,13 +119,9 @@ namespace plgl {
 		return size / base;
 	}
 
-	float Font::getFontLineGap() const {
+	GlyphQuad Font::getBakedQuad(bool* flush, float* x, float* y, int unicode, float scale, int prev) {
 
-	}
-
-	stbtt_aligned_quad Font::getBakedQuad(bool* flush, float* x, float* y, int unicode, float scale, int prev) {
-
-		stbtt_aligned_quad quad;
+		GlyphQuad quad;
 
 		double kerning = 0;
 		float iw = 1.0f / width;
