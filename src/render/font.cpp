@@ -23,8 +23,6 @@ namespace plgl {
 
 	bool Font::loadUnicode(msdfgen::FontHandle* font, uint32_t unicode, float scale, float range, const std::function<void()>& on_resize) {
 		msdfgen::Shape shape;
-
-		Image image = Image::allocate(resolution, resolution, 4);
 		GlyphInfo info;
 
 		if (loadGlyph(shape, font, unicode, msdfgen::FONT_SCALING_EM_NORMALIZED, &info.advance)) {
@@ -41,6 +39,7 @@ namespace plgl {
 
 			edgeColoringSimple(shape, 3.0);
 
+			Image image = Image::allocate(resolution, resolution, 4);
 			msdfgen::Bitmap<float, 3> msdf(image.width(), image.height());
 
 			msdfgen::SDFTransformation transform {
@@ -89,13 +88,13 @@ namespace plgl {
 		this->base = 100;
 
 		if (!freetype) {
-			throw std::runtime_error {"Failed to initialize FreeType library!"};
+			fault("Failed to initialize FreeType library!");
 		}
 
 		this->font = loadFont(freetype, path);
 
 		if (!font) {
-			throw std::runtime_error {std::string ("Failed to open font: '") + path + "'"};
+			fault("Failed to open font: '{}'", path);
 		}
 
 		std::vector<msdfgen::FontVariationAxis> axes;

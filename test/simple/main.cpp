@@ -83,7 +83,7 @@ int main() {
 		text(10, height - 40, welcome[idx]);
 
 		size(30);
-		textf(10, height - 10, "Quick %s jumps over the %s", "brown fox", "lazy dog!", "This one will not be shown!");
+		textf(10, height - 10, "Quick {} jumps over the {}", "brown fox", "lazy dog!", "This one will not be shown!");
 
 		stroke(100, 100, 0, 100);
 		fill(0, 0, 200, 100);
@@ -95,7 +95,7 @@ int main() {
 		rect(260, 100, 100, 80, 10, 20, 40, 0);
 
 		stroke(250, 80, 80, 200);
-		arc(320, 160, 25, 25, rad(((int) (1.4f * frame_count) % 360)), TAU / 3 + PI * sin(frame_count * 0.01));
+		arc(320, 160, 25, 25, rad(((int) (1.4f * frame_count) % 360)), TAU / 3 + PI * sin(frame_count * 0.01), OPEN_PIE);
 
 		fill(39, 114, 198);
 		stroke(OFF);

@@ -1,5 +1,6 @@
 
 #include "image.hpp"
+#include "util.hpp"
 
 namespace plgl {
 
@@ -77,12 +78,16 @@ namespace plgl {
 	}
 
 	void Image::blit(int ox, int oy, Image& image) {
+		if (ox < 0 || oy < 0) {
+			fault("Can't blit an image at negative offset ({}, {})!", ox, oy);
+		}
+
 		if (ox + image.width() > w || oy + image.height() > h) {
-			impl::fatal("Can't blit-in the given image, invalid placement!");
+			fault("Can't blit an image of size ({}, {}) at offset ({}, {}) as it would fall outside target image bounds ({}, {})!", ox, oy, image.width(), image.height(), w, h);
 		}
 
 		if (image.channels() != channels()) {
-			impl::fatal("Can't blit-in the given image, invalid channel count!");
+			fault("Can't blit an image with {} channels into an image with {} channels!", image.channels(), channels());
 		}
 
 		for (int y = 0; y < (int) image.height(); y ++) {
@@ -103,7 +108,7 @@ namespace plgl {
 		void* pixels = stbi_load(path.c_str(), &w, &h, &ignored, channels);
 
 		if (!pixels) {
-			impl::fatal("Unable to load texture: '%s'!", path);
+			fault("Unable to load texture: '{}'!", path);
 		}
 
 		return {Type::STB_IMAGE, pixels, w, h, channels};

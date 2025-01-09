@@ -8,7 +8,7 @@ void plgl::open(const std::string& title, int width, int height) {
 	impl::init();
 
 	if (opened) {
-		impl::fatal("There can only be one window!");
+		fault("There can only be one window open at a time!");
 	}
 
 	stbi_flip_vertically_on_write(true);
@@ -18,7 +18,7 @@ void plgl::open(const std::string& title, int width, int height) {
 	winxHint(WINX_HINT_MULTISAMPLES, 4);
 
 	if (!winxOpen(width, height, title.c_str())) {
-		impl::fatal("Failed to open window, WINX error: %s!", winxGetError());
+		fault("Failed to open window, WINX error: {}!", winxGetError());
 	}
 
 	// use GLAD to load OpenGL functions

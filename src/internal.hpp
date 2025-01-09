@@ -27,13 +27,6 @@ namespace plgl {
 			user_event_handlers[(int) event]();
 		}
 
-		template<class... Args>
-		[[deprecated]] [[noreturn]] inline void fatal(const char* format_str, Args&&... args) {
-			last_error = format(format_str, args...);
-			trigger(WINDOW_ERROR);
-			exit(1);
-		}
-
 		/**
 		 * Starts PLGL, called each time open() is invoked,
 		 * this functions internally checks if PLGL already was initialized

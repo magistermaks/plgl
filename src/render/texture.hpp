@@ -25,8 +25,8 @@ namespace plgl {
 			GLuint tid;
 			int c, w, h;
 
-			static GLenum getFormat(int channels);
-			void upload(const void* data, size_t width, size_t height, size_t channels);
+			static GLenum format(int channels);
+			void upload(const void* data, int width, int height, int channels);
 
 		public:
 

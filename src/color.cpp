@@ -88,7 +88,7 @@ namespace plgl {
 	}
 
 	std::string RGBA::str() const {
-		return format("rgba(%s, %s, %s, %s)", impl::denormalize(r), impl::denormalize(g), impl::denormalize(b), impl::denormalize(a));
+		return format("rgba({}, {}, {}, {})", impl::denormalize(r), impl::denormalize(g), impl::denormalize(b), impl::denormalize(a));
 	}
 
 	/*
@@ -148,7 +148,7 @@ namespace plgl {
 	}
 
 	std::string HSLA::str() const {
-		return format("hsla(%s, %s%%, %s%%, %s)", (int) round((h / TAU) * 360), (int) round(s * 100), (int) round(l * 100), impl::denormalize(a));
+		return format("hsla({}, {}%, {}%, {})", (int) round((h / TAU) * 360), (int) round(s * 100), (int) round(l * 100), impl::denormalize(a));
 	}
 
 

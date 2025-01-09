@@ -11,10 +11,6 @@ namespace plgl::impl {
 				impl::user_event_handlers[i] = UNSET_HANDLER;
 			}
 
-			impl::user_event_handlers[(int) WINDOW_ERROR] = []() {
-				printf("%s\n", last_error.c_str());
-			};
-
 			initialized = true;
 		}
 	}

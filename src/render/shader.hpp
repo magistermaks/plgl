@@ -9,7 +9,9 @@ namespace plgl {
 		private:
 
 			GLuint program;
-			GLuint compile(GLenum type, const char* source);
+
+			static GLuint compile_shader(GLenum type, const char* source);
+			static GLuint link_shader(GLuint vertex, GLuint fragment);
 
 		public:
 

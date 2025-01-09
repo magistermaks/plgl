@@ -54,11 +54,20 @@ namespace plgl {
 		int index = 0;
 
 		for (char chr : format_str) {
-			if (last == '%') {
-				if (chr == '%') formatted += '%';
+
+			// we don't really need to escape '}' by c++ tells us to do
+			// that anyway so i kinda do but allow also using '}' as is
+			if (last == '}') {
+				if (chr != '}') {
+					formatted += chr;
+				}
+			}
+
+			if (last == '{') {
+				if (chr == '{') formatted += '{';
 
 				try {
-					if (chr == 's') formatted += arguments.at(index ++);
+					if (chr == '}') formatted += arguments.at(index ++);
 				} catch (...) {
 					return formatted;
 				}
@@ -67,7 +76,7 @@ namespace plgl {
 				continue;
 			}
 
-			if (chr != '%') {
+			if (chr != '{') {
 				formatted += chr;
 			}
 
@@ -76,6 +85,11 @@ namespace plgl {
 
 		return formatted;
 
+	}
+
+	template<typename... Args>
+	[[noreturn]] void fault(const std::string& format_string, Args&&... args) {
+		throw std::runtime_error {format(format_string, args...)};
 	}
 
 	template <typename C, typename E>

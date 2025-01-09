@@ -17,15 +17,14 @@ namespace plgl {
 		MOUSE_SCROLLED = 7,
 		WINDOW_RESIZE  = 8,
 		WINDOW_CLOSE   = 9,
-		WINDOW_ERROR   = 10,
-		WINDOW_DRAW    = 11,
-		WINDOW_FOCUS   = 12
+		WINDOW_DRAW    = 10,
+		WINDOW_FOCUS   = 11
 	};
 
 	using EventHandler = std::function<void()>;
 
 	namespace impl {
-		constexpr int EVENT_COUNT = 13;
+		constexpr int EVENT_COUNT = 12;
 	}
 
 }

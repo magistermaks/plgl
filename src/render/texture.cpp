@@ -16,24 +16,22 @@ namespace plgl {
 	 * Texture
 	 */
 
-	GLenum Texture::getFormat(int channels) {
+	GLenum Texture::format(int channels) {
 		switch (channels) {
-			case 4:
-				return GL_RGBA;
-			case 3:
-				return GL_RGB;
-			case 1:
-				return GL_ALPHA;
+			case 4: return GL_RGBA;
+			case 3: return GL_RGB;
+			case 2: return GL_RG;
+			case 1: return GL_ALPHA;
 		}
 
-		impl::fatal("Unsuported texture channel count: %s!", channels);
+		fault("Unsupported texture channel count: {}!", channels);
 	}
 
-	void Texture::upload(const void* data, size_t width, size_t height, size_t channels) {
+	void Texture::upload(const void* data, int width, int height, int channels) {
 		glBindTexture(GL_TEXTURE_2D, tid);
 
 		// upload texture data
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, getFormat(channels), GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format(channels), GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 
 		this->c = channels;
