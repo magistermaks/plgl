@@ -11,7 +11,12 @@ std::vector<const char*> welcome = {
 	"Привіт, світ!",
 	"Ahoj světe!",
 	"Bonjour!",
-	"Hej världen!"
+	"Hej världen!",
+	"Hallo wereld!",
+	"Ciao mondo!",
+	"Γεια σου Κόσμο!",
+	"Halló Heimur!",
+	"Hei maailma!"
 };
 
 int main() {
@@ -78,7 +83,7 @@ int main() {
 		text(10, height - 40, welcome[idx]);
 
 		size(30);
-		textf(10, height - 10, "Hello %s World %s", "Brave New", "from PLGL!", "OwO");
+		textf(10, height - 10, "Quick %s jumps over the %s", "brown fox", "lazy dog!", "This one will not be shown!");
 
 		stroke(100, 100, 0, 100);
 		fill(0, 0, 200, 100);

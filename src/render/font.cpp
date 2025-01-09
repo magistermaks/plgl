@@ -21,7 +21,7 @@ namespace plgl {
 		return *reinterpret_cast<FT_Face*>(font);
 	}
 
-	bool Font::loadUnicode(msdfgen::FontHandle* font, uint32_t unicode, int size, float scale, float range, bool* flush) {
+	bool Font::loadUnicode(msdfgen::FontHandle* font, uint32_t unicode, int size, float scale, float range, const std::function<void()>& on_resize) {
 		msdfgen::Shape shape;
 
 		Image image = Image::allocate(size, size, 4);
@@ -64,7 +64,7 @@ namespace plgl {
 				}
 			}
 
-			Sprite sprite = atlas.submitImage(image, flush);
+			Sprite sprite = atlas.submitImage(image, on_resize);
 			image.close();
 
 			info.x0 = sprite.x;
@@ -119,7 +119,7 @@ namespace plgl {
 		return size / base;
 	}
 
-	GlyphQuad Font::getBakedQuad(bool* flush, float* x, float* y, int unicode, float scale, int prev) {
+	GlyphQuad Font::getBakedQuad(float* x, float* y, float scale, int unicode, int prev, const std::function<void()>& on_resize) {
 
 		GlyphQuad quad;
 
@@ -138,10 +138,10 @@ namespace plgl {
 		auto pair = cdata.find(unicode);
 
 		if (pair == cdata.end()) {
-			loadUnicode(handle, unicode, 64, 64, 6, flush);
+			loadUnicode(handle, unicode, 64, 64, 6, on_resize);
 
 			prepare();
-			return getBakedQuad(flush, x, y, unicode, scale, prev);
+			return getBakedQuad(x, y, scale, unicode, prev, on_resize);
 		}
 
 		GlyphInfo& info = pair->second;

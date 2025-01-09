@@ -62,6 +62,12 @@ FetchContent_Declare(
 		GIT_TAG v0.1.36
 )
 
+FetchContent_Declare(
+		ankerl
+		GIT_REPOSITORY https://github.com/martinus/unordered_dense
+		GIT_TAG v4.4.0
+)
+
 set(GLAD_PROFILE "core"	CACHE STRING "OpenGL profile")
 set(GLAD_GENERATOR "c"	CACHE STRING "Language to generate the binding for")
 
@@ -71,7 +77,7 @@ set(MSDFGEN_USE_SKIA OFF CACHE BOOL "" FORCE)
 set(MSDFGEN_USE_VCPKG OFF CACHE BOOL "" FORCE)
 set(MSDFGEN_BUILD_STANDALONE OFF CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(winx stb glad msdfgen)
+FetchContent_MakeAvailable(winx stb glad msdfgen ankerl)
 
 include_directories(
 		.
@@ -80,6 +86,7 @@ include_directories(
 		${stb_SOURCE_DIR}                        # Headers in ./
 		${GLAD_INCLUDE_DIRS}                     # Headers in ./glad/
 		${winx_SOURCE_DIR}                       # Headers in ./
+		${ankerl_SOURCE_DIR}/include             # Headers in ./ankerl
 )
 
 file(GLOB_RECURSE PLGL_SOURCES
@@ -104,6 +111,7 @@ set(PLGL_LIBS
 		msdfgen::msdfgen-core
 		msdfgen::msdfgen-ext
 		Freetype::Freetype
+		unordered_dense::unordered_dense
 )
 
 target_link_libraries(PLGL PRIVATE ${PLGL_LIBS})

@@ -51,7 +51,7 @@ namespace plgl {
 				return true;
 			}
 
-			Sprite packSprite(Image& image, bool* reallocated) {
+			Sprite packSprite(Image& image, const std::function<void()>& on_resize) {
 				for (int x = 0; x < (int) atlas.width(); x ++) {
 					for (int y = 0; y < (int) atlas.height(); y ++) {
 						const int w = image.width();
@@ -68,12 +68,12 @@ namespace plgl {
 				}
 
 				// retry with bigger atlas
-				if (reallocated) {
-					*reallocated |= true;
+				if (on_resize) {
+					on_resize();
 				}
 
 				atlas.resize(atlas.width() * 2, atlas.height() * 2);
-				return packSprite(image, reallocated);
+				return packSprite(image, {});
 			}
 
 		public:
@@ -133,12 +133,12 @@ namespace plgl {
 				return sprite;
 			}
 
-			Sprite submitImage(Image& image, bool* reallocated = nullptr) {
+			Sprite submitImage(Image& image, const std::function<void()>& on_resize = {}) {
 				if (frozen) {
 					impl::fatal("Can't modify frozen atlas!");
 				}
 
-				return packSprite(image, reallocated);
+				return packSprite(image, on_resize);
 			}
 
 	};

@@ -375,7 +375,6 @@ namespace plgl {
 				int offset = 0;
 
 				while (true) {
-					bool reallocated = false;
 					prev = unicode;
 					unicode = next_unicode(str.c_str(), &offset);
 
@@ -383,11 +382,9 @@ namespace plgl {
 						break;
 					}
 
-					GlyphQuad q = font.getBakedQuad(&reallocated, &x, &y, unicode, font.getScaleForSize(text_size), prev);
-
-					if (reallocated) {
+					GlyphQuad q = font.getBakedQuad(&x, &y, font.getScaleForSize(text_size), unicode, prev, [this] () {
 						flush();
-					}
+					});
 
 					ivert(q.x0, q.y1, q.s0, q.t1);
 					ivert(q.x0, q.y0, q.s0, q.t0);
