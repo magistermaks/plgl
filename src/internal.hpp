@@ -28,7 +28,7 @@ namespace plgl {
 		}
 
 		template<class... Args>
-		[[noreturn]] inline void fatal(const char* format_str, Args&&... args) {
+		[[deprecated]] [[noreturn]] inline void fatal(const char* format_str, Args&&... args) {
 			last_error = format(format_str, args...);
 			trigger(WINDOW_ERROR);
 			exit(1);

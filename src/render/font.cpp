@@ -1,88 +1,184 @@
 
 #include "font.hpp"
+#include "atlas.hpp"
+
+#include "msdfgen.h"
+#include "msdfgen-ext.h"
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 namespace plgl {
+
+	static msdfgen::FreetypeHandle* freetype = msdfgen::initializeFreetype();
 
 	/*
 	 * Font
 	 */
 
-	Font::Font(const char* path, float height) : Texture() {
+	static FT_Face getFreeType(msdfgen::FontHandle* font) {
+		// get around the fact there is no official way to access the underlying freetype font object
+		return *reinterpret_cast<FT_Face*>(font);
+	}
 
-		// open file
-		std::ifstream file(path, std::ios::binary | std::ios::ate);
-		unsigned int length = file.tellg();
-		file.seekg(0, std::ios::beg);
+	bool Font::loadUnicode(msdfgen::FontHandle* font, uint32_t unicode, float scale, float range, const std::function<void()>& on_resize) {
+		msdfgen::Shape shape;
 
-		// prepare buffer
-		std::vector<char> buffer;
-		buffer.reserve(length);
+		Image image = Image::allocate(resolution, resolution, 4);
+		GlyphInfo info;
 
-		// load file into buffer
-		if (!file.read(buffer.data(), length)) {
-			impl::fatal("Unable to load font: '%s'!", path);
-		}
+		if (loadGlyph(shape, font, unicode, msdfgen::FONT_SCALING_EM_NORMALIZED, &info.advance)) {
+			shape.normalize();
 
-		this->base = height;
-		int size = 256;
-		bool build = false;
+			info.advance *= scale;
+			auto box = shape.getBounds();
 
-		while (!build) {
-			size *= 2;
+			float tx = (1 - (box.r - box.l)) * 0.5f - box.l;
+			float ty = (1 - (box.t - box.b)) * 0.5f - box.b;
 
-			unsigned char* bitmap = new unsigned char[size * size];
-			int magic = stbtt_BakeFontBitmap((unsigned char*) buffer.data(), 0, height, bitmap, size, size, 32, 96, cdata);
-			//printf("PLGL: Baked font '%s' into %dx%d bitmap, magic=%d\n", path, size, size, magic);
+			info.xoff = (-tx) * scale;
+			info.yoff = ty * scale;
 
-			float ascent;
-			float descent;
-			//float lineGap;
+			edgeColoringSimple(shape, 3.0);
 
-			stbtt_GetScaledFontVMetrics((unsigned char*) buffer.data(), 0, size, &ascent, &descent, &lineGap);
-			printf("ascent=%f, descent=%f, lineGap=%f\n", ascent, descent, lineGap);
+			msdfgen::Bitmap<float, 3> msdf(image.width(), image.height());
 
-			if (magic > 0) {
-				upload(bitmap, size, size, 1);
-				build = true;
+			msdfgen::SDFTransformation transform {
+				msdfgen::Projection(scale, msdfgen::Vector2(tx, ty)),
+				msdfgen::Range(range) / scale
+			};
+
+			msdfgen::generateMSDF(msdf, shape, transform);
+
+			// convert to some normal format...
+			for (int x = 0; x < msdf.width(); x++) {
+				for (int y = 0; y < msdf.height(); y++) {
+					float* pixel = msdf(x, y);
+
+					uint8_t r = msdfgen::pixelFloatToByte(pixel[0]);
+					uint8_t g = msdfgen::pixelFloatToByte(pixel[1]);
+					uint8_t b = msdfgen::pixelFloatToByte(pixel[2]);
+					uint8_t a = msdfgen::pixelFloatToByte(pixel[3]);
+
+					image.pixel(x, y).set(r, g, b, a);
+				}
 			}
 
-			delete[] bitmap;
+			Sprite sprite = atlas.submit(image, on_resize);
+			image.close();
+
+			info.x0 = sprite.x;
+			info.y0 = sprite.y + sprite.h;
+			info.x1 = sprite.x + sprite.w;
+			info.y1 = sprite.y;
+
+			cdata[unicode] = info;
+
+			// update texture
+			atlas.upload();
+
+			return true;
 		}
+
+		return false;
 	}
+
+	Font::Font(const char* path, int weight)
+	: atlas(resolution, resolution) {
+
+		this->base = 100;
+
+		if (!freetype) {
+			throw std::runtime_error {"Failed to initialize FreeType library!"};
+		}
+
+		this->font = loadFont(freetype, path);
+
+		if (!font) {
+			throw std::runtime_error {std::string ("Failed to open font: '") + path + "'"};
+		}
+
+		std::vector<msdfgen::FontVariationAxis> axes;
+		msdfgen::listFontVariationAxes(axes, freetype, font);
+
+		FT_Face face = getFreeType(this->font);
+		printf("Loaded font '%s'", face->family_name);
+
+		for (auto axis : axes) {
+			printf(" [Axis: '%s']", axis.name);
+		}
+
+		printf("\n");
+		msdfgen::setFontVariationAxis(freetype, font, "Weight", weight);
+
+	}
+
+//	void Font::close() {
+//		destroyFont(handle);
+//		atlas.close();
+//	}
 
 	float Font::getScaleForSize(float size) const {
 		return size / base;
 	}
 
-	float Font::getFontLineGap() const {
+	GlyphQuad Font::getBakedQuad(float* x, float* y, float scale, int unicode, int prev, const std::function<void()>& on_resize) {
+
+		GlyphQuad quad;
+
+		double kerning = 0;
+		float iw = 1.0f / width();
+		float ih = 1.0f / height();
+
+		if (prev != 0) {
+			msdfgen::getKerning(kerning, font, prev, unicode, msdfgen::FONT_SCALING_EM_NORMALIZED);
+		}
+
+		if (kerning != 0) {
+			kerning = kerning;
+		}
+
+		auto pair = cdata.find(unicode);
+
+		if (pair == cdata.end()) {
+			loadUnicode(font, unicode, 64, 6, on_resize);
+			return getBakedQuad(x, y, scale, unicode, prev, on_resize);
+		}
+
+		GlyphInfo& info = pair->second;
+
+		int round_x = (int) floor((*x + info.xoff * scale) + 0.5f);
+		int round_y = (int) floor((*y + info.yoff * scale) + 0.5f);
+
+		quad.x0 = round_x + kerning * base * scale;
+		quad.y0 = round_y;
+		quad.x1 = round_x + (info.x1 - info.x0) * scale;
+		quad.y1 = round_y + (info.y1 - info.y0) * scale;
+
+		quad.s0 = info.x0 * iw;
+		quad.t0 = info.y1 * ih;
+		quad.s1 = info.x1 * iw;
+		quad.t1 = info.y0 * ih;
+
+		*x += info.advance * scale;
+		return quad;
 
 	}
 
-	stbtt_aligned_quad Font::getBakedQuad(float* x, float* y, int code, float scale) const {
+	void Font::use() const {
+		atlas.use();
+	}
 
-		stbtt_aligned_quad quad;
+	int Font::handle() const {
+		return atlas.handle();
+	}
 
-		int index = code - 32;
-		float iw = 1.0f / width;
-		float ih = 1.0f / height;
+	int Font::width() const {
+		return atlas.width();
+	}
 
-		const stbtt_bakedchar* info = cdata + index;
-		int round_x = (int) floor((*x + info->xoff * scale) + 0.5f);
-		int round_y = (int) floor((*y + info->yoff * scale) + 0.5f);
-
-		quad.x0 = round_x;
-		quad.y0 = round_y;
-		quad.x1 = round_x + (info->x1 - info->x0) * scale;
-		quad.y1 = round_y + (info->y1 - info->y0) * scale;
-
-		quad.s0 = info->x0 * iw;
-		quad.t0 = info->y0 * ih;
-		quad.s1 = info->x1 * iw;
-		quad.t1 = info->y1 * ih;
-
-		*x += info->xadvance * scale;
-
-		return quad;
+	int Font::height() const {
+		return atlas.height();
 	}
 
 }

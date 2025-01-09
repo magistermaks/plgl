@@ -3,13 +3,29 @@
 
 using namespace plgl;
 
+std::vector<const char*> welcome = {
+	"Hello World!",
+	"Cześć Świecie!",
+	"¡Hola Mundo!",
+	"Hallo Welt!",
+	"Привіт, світ!",
+	"Ahoj světe!",
+	"Bonjour!",
+	"Hej världen!",
+	"Hallo wereld!",
+	"Ciao mondo!",
+	"Γεια σου Κόσμο!",
+	"Halló Heimur!",
+	"Hei maailma!"
+};
+
 int main() {
 
 	open("Processing-Like Graphics Library", 400, 300);
 
 	bool clip_mode = false;
 	Texture cat {"assets/cat.png"};
-	Font fnt {"assets/font2.ttf", 100};
+	Font fnt {"assets/OpenSans-Variable.ttf"};
 
 	listen(WINDOW_CLOSE, [] () {
 		printf("Goodbye!\n");
@@ -58,13 +74,16 @@ int main() {
 		texture(cat, 20, 20, 60, 60);
 		image(200, 280, 30, 30);
 
+		// pick different hello message every 3s
+		int idx = (frame_count / 60 / 3) % welcome.size();
+
 		tint(255, 70, 70);
 		font(fnt);
 		size(80);
-		text(10, height - 40, "Hello World!");
+		text(10, height - 40, welcome[idx]);
 
 		size(30);
-		textf(10, height - 10, "Hello %s World %s", "Brave New", "from PLGL!", "OwO");
+		textf(10, height - 10, "Quick %s jumps over the %s", "brown fox", "lazy dog!", "This one will not be shown!");
 
 		stroke(100, 100, 0, 100);
 		fill(0, 0, 200, 100);

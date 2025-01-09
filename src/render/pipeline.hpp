@@ -19,9 +19,9 @@ namespace plgl {
 
 			Buffer buffer;
 			Shader& shader;
-			Texture* texture;
+			PixelBuffer* texture;
 
-			Pipeline(Shader& shader, Texture* texture);
+			Pipeline(Shader& shader, PixelBuffer* texture);
 
 		public:
 

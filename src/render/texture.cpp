@@ -4,6 +4,18 @@
 
 namespace plgl {
 
+	/*
+	 * PixelBuffer
+	 */
+
+	PixelBuffer::~PixelBuffer() {
+		// do nothing
+	}
+
+	/*
+	 * Texture
+	 */
+
 	GLenum Texture::getFormat(int channels) {
 		switch (channels) {
 			case 4:
@@ -24,9 +36,9 @@ namespace plgl {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, getFormat(channels), GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 
-		this->channels = channels;
-		this->width = width;
-		this->height = height;
+		this->c = channels;
+		this->w = width;
+		this->h = height;
 	}
 
 	Texture::Texture() {
@@ -62,27 +74,27 @@ namespace plgl {
 		upload(image.data(), image.width(), image.height(), image.channels());
 	}
 
-	GLuint Texture::getTid() const {
+	int Texture::handle() const {
 		return tid;
 	}
 
-	int Texture::getWidth() const {
-		return width;
+	int Texture::width() const {
+		return w;
 	}
 
-	int Texture::getHeight() const {
-		return height;
+	int Texture::height() const {
+		return h;
 	}
 
-	Image Texture::getPixels() const {
-		Image image = Image::allocate(width, height, 4);
+	Image Texture::pixels() const {
+		Image image = Image::allocate(w, h, c);
 		glBindTexture(GL_TEXTURE_2D, tid);
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.data());
 		return image;
 	}
 
 	void Texture::save(const std::string& path) const {
-		Image image = getPixels();
+		Image image = pixels();
 		image.save(path);
 		image.close();
 	}

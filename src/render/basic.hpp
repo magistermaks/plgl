@@ -64,14 +64,14 @@ namespace plgl {
 					return stroke_flag ? stroke_width : 0;
 				}
 
-				Texture& getTexture() {
+				PixelBuffer& getTexture() {
 					return *pipeline->texture;
 				}
 
-				void registerTexture(Texture& texture, Shader& shader) {
+				void registerTexture(PixelBuffer& texture, Shader& shader) {
 					textures.emplace(
 						std::piecewise_construct,
-						std::forward_as_tuple(texture.getTid()),
+						std::forward_as_tuple(texture.handle()),
 						std::forward_as_tuple(shader, &texture)
 					);
 				}
@@ -130,7 +130,7 @@ namespace plgl {
 			public:
 
 				void useTexture(Texture& t) {
-					GLuint tid = t.getTid();
+					GLuint tid = t.handle();
 
 					if (!textures.count(tid)) {
 						registerTexture(t, Pipeline::getImageShader());
@@ -140,7 +140,7 @@ namespace plgl {
 				}
 
 				void useFont(Font& f) {
-					GLuint tid = f.getTid();
+					GLuint tid = f.handle();
 
 					if (!textures.count(tid)) {
 						registerTexture(f, Pipeline::getFontShader());

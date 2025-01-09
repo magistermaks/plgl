@@ -10,6 +10,7 @@
 #include "basic.hpp"
 #include "arc.hpp"
 #include "atlas.hpp"
+#include "utf8.hpp"
 
 namespace plgl {
 
@@ -99,8 +100,8 @@ namespace plgl {
 			void texture(Texture& t, float bx, float by, float ex, float ey) {
 				useTexture(t);
 
-				float w = t.getWidth();
-				float h = t.getHeight();
+				float w = t.width();
+				float h = t.height();
 
 				this->bx = std::min(bx, w) / w;
 				this->by = std::min(by, h) / h;
@@ -112,10 +113,10 @@ namespace plgl {
 			}
 
 			void texture(Texture& t) {
-				texture(t, 0, 0, t.getWidth(), t.getHeight());
+				texture(t, 0, 0, t.width(), t.height());
 
-				this->tw = t.getWidth();
-				this->th = t.getHeight();
+				this->tw = t.width();
+				this->th = t.height();
 			}
 
 			void font(Font& f) {
@@ -369,9 +370,21 @@ namespace plgl {
 				use(fonts_pipeline);
 
 				Font& font = (Font&) getTexture();
+				int unicode = 0;
+				int prev = 0;
+				int offset = 0;
 
-				for (char chr : str) {
-					stbtt_aligned_quad q = font.getBakedQuad(&x, &y, chr, font.getScaleForSize(text_size));
+				while (true) {
+					prev = unicode;
+					unicode = next_unicode(str.c_str(), &offset);
+
+					if (unicode == 0) {
+						break;
+					}
+
+					GlyphQuad q = font.getBakedQuad(&x, &y, font.getScaleForSize(text_size), unicode, prev, [this] () {
+						flush();
+					});
 
 					ivert(q.x0, q.y1, q.s0, q.t1);
 					ivert(q.x0, q.y0, q.s0, q.t0);
@@ -438,13 +451,9 @@ namespace plgl {
 
 				rect(rx, ry, rw, rh, radius_size);
 
-				use(fonts_pipeline);
-
-				Font& font = (Font&) getTexture();
-
 				size(text_size);
 				stroke(0, 0, 0);
-				textf(rx, ry + font.lineGap * font.getScaleForSize(text_size) + rh / 2, "ABCdef!");
+				textf(rx, ry + rh / 2, "ABCdef!");
 
 			}
 

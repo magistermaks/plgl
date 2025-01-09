@@ -4,13 +4,13 @@
 #include <glad/glad.h>
 #include <winx.h>
 #include <lib/perlin.hpp>
+#include "ankerl/unordered_dense.h"
 
 // STB
 #define STB_VORBIS_HEADER_ONLY
 #include "stb_vorbis.c"
 #include "stb_image.h"
 #include "stb_image_write.h"
-#include "stb_truetype.h"
 
 // C stdlib
 #include <cstdio>

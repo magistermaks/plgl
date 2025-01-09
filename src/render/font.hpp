@@ -1,25 +1,50 @@
 #pragma once
 
 #include "texture.hpp"
+#include "atlas.hpp"
+
+namespace msdfgen {
+	struct FontHandle;
+}
 
 namespace plgl {
 
-	class Font : public Texture {
+	struct GlyphInfo {
+		double x0, y0, x1, y1;
+		double xoff, yoff, advance;
+	};
+
+	struct GlyphQuad {
+		float x0, y0, s0, t0;
+		float x1, y1, s1, t1;
+	};
+
+	class Font : public PixelBuffer {
 
 		public:
+
+			static constexpr int resolution = 64;
+
+		private:
 
 			float base;
-			stbtt_bakedchar cdata[96]; // ASCII 32 (space) .. 126 (~) is 95 glyphs
-			float lineGap;
+			msdfgen::FontHandle* font;
+			Atlas atlas;
+			ankerl::unordered_dense::map<int, GlyphInfo> cdata;
+
+			bool loadUnicode(msdfgen::FontHandle* font, uint32_t unicode, float scale, float range, const std::function<void()>& on_resize);
 
 		public:
 
-			Font(const char* path, float height);
+			Font(const char* path, int weight = 400);
 
 			float getScaleForSize(float size) const;
-			float getFontLineGap() const;
-			stbtt_aligned_quad getBakedQuad(float* x, float* y, int code, float scale) const;
+			GlyphQuad getBakedQuad(float* x, float* y, float scale, int code, int prev, const std::function<void()>& on_resize);
 
+			void use() const final;
+			int handle() const final;
+			int width() const final;
+			int height() const final;
 	};
 
 }

@@ -59,7 +59,7 @@ namespace plgl {
 		static const char* fragment = R"(
 			#version 330 core
 
-			uniform sampler2D sampler;
+			uniform sampler2D uSampler;
 
 			in vec4 vColor;
 			in vec2 vTex;
@@ -67,7 +67,7 @@ namespace plgl {
 			out vec4 fColor;
 
 			void main(){
-				fColor = texture(sampler, vTex).rgba * vColor;
+				fColor = texture(uSampler, vTex).rgba * vColor;
 			}
 		)";
 
@@ -96,26 +96,46 @@ namespace plgl {
 		static const char* fragment = R"(
 			#version 330 core
 
-			uniform sampler2D sampler;
+			uniform sampler2D uSampler;
 
 			in vec4 vColor;
 			in vec2 vTex;
 
 			out vec4 fColor;
 
-			void main(){
-				fColor = vec4(1, 1, 1, texture(sampler, vTex).a) * vColor;
+			float median(float r, float g, float b) {
+				return max(min(r, g), min(max(r, g), b));
 			}
+
+
+			// font_size / 64 * 6
+			float range() {
+				// this, i think, is both incorrect and unadvised, but it works for now
+				vec2 unitRange = vec2(6)/vec2(textureSize(uSampler, 0));
+				vec2 screenTexSize = vec2(1.0)/fwidth(vTex);
+				return max(0.5*dot(unitRange, screenTexSize), 1.0);
+			}
+
+			void main() {
+				vec3 fields = texture(uSampler, vTex).rgb;
+				float distance = median(fields.x, fields.y, fields.z);
+				float screen = range() * (distance - 0.5);
+				float opacity = clamp(screen + 0.5, 0.0, 1.0);
+				fColor = vec4(vColor.rgb, vColor.a * opacity);
+			}
+
 		)";
 
 		static Shader shader {vertex, fragment};
 		return shader;
 	}
 
-	Pipeline::Pipeline(Shader& shader, Texture* texture)
+	Pipeline::Pipeline(Shader& shader, PixelBuffer* texture)
 	: buffer({}), shader(shader), texture(texture) {
+		shader.use();
+
 		if (texture) {
-			glUniform1i(shader.uniform("sampler"), 0);
+			glUniform1i(shader.uniform("uSampler"), 0);
 		}
 	}
 

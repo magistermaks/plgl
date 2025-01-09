@@ -52,7 +52,7 @@ namespace plgl {
 			void resize(int w, int h);
 			void blit(int ox, int oy, Image& image);
 			Pixel pixel(int x, int y);
-			void save(const std::string& path);
+			void save(const std::string& path) const;
 
 			/**
 			 * Returns an image data buffer for the image pointer to by the

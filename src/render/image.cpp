@@ -94,7 +94,7 @@ namespace plgl {
 		return {((uint8_t*) pixels) + (x + y * w) * channels(), (uint8_t) c};
 	}
 
-	void Image::save(const std::string& path) {
+	void Image::save(const std::string& path) const {
 		stbi_write_png(path.c_str(), w, h, c, pixels, w * c);
 	}
 
