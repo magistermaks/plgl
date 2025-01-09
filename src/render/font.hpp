@@ -19,17 +19,20 @@ namespace plgl {
 		float x1, y1, s1, t1;
 	};
 
-	class Font : public Texture {
+	class Font : public PixelBuffer {
+
+		public:
+
+			static constexpr int resolution = 64;
 
 		private:
 
 			float base;
-			msdfgen::FontHandle* handle;
-			bool modified = false;
+			msdfgen::FontHandle* font;
 			Atlas atlas;
 			ankerl::unordered_dense::map<int, GlyphInfo> cdata;
 
-			bool loadUnicode(msdfgen::FontHandle* font, uint32_t unicode, int size, float scale, float range, const std::function<void()>& on_resize);
+			bool loadUnicode(msdfgen::FontHandle* font, uint32_t unicode, float scale, float range, const std::function<void()>& on_resize);
 
 		public:
 
@@ -38,8 +41,10 @@ namespace plgl {
 			float getScaleForSize(float size) const;
 			GlyphQuad getBakedQuad(float* x, float* y, float scale, int code, int prev, const std::function<void()>& on_resize);
 
-			void prepare();
-
+			void use() const final;
+			int handle() const final;
+			int width() const final;
+			int height() const final;
 	};
 
 }

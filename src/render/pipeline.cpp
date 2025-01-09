@@ -130,7 +130,7 @@ namespace plgl {
 		return shader;
 	}
 
-	Pipeline::Pipeline(Shader& shader, Texture* texture)
+	Pipeline::Pipeline(Shader& shader, PixelBuffer* texture)
 	: buffer({}), shader(shader), texture(texture) {
 		shader.use();
 

@@ -21,10 +21,10 @@ namespace plgl {
 		return *reinterpret_cast<FT_Face*>(font);
 	}
 
-	bool Font::loadUnicode(msdfgen::FontHandle* font, uint32_t unicode, int size, float scale, float range, const std::function<void()>& on_resize) {
+	bool Font::loadUnicode(msdfgen::FontHandle* font, uint32_t unicode, float scale, float range, const std::function<void()>& on_resize) {
 		msdfgen::Shape shape;
 
-		Image image = Image::allocate(size, size, 4);
+		Image image = Image::allocate(resolution, resolution, 4);
 		GlyphInfo info;
 
 		if (loadGlyph(shape, font, unicode, msdfgen::FONT_SCALING_EM_NORMALIZED, &info.advance)) {
@@ -64,7 +64,7 @@ namespace plgl {
 				}
 			}
 
-			Sprite sprite = atlas.submitImage(image, on_resize);
+			Sprite sprite = atlas.submit(image, on_resize);
 			image.close();
 
 			info.x0 = sprite.x;
@@ -73,7 +73,9 @@ namespace plgl {
 			info.y1 = sprite.y;
 
 			cdata[unicode] = info;
-			modified = true;
+
+			// update texture
+			atlas.upload();
 
 			return true;
 		}
@@ -81,7 +83,8 @@ namespace plgl {
 		return false;
 	}
 
-	Font::Font(const char* path, int weight) : Texture() {
+	Font::Font(const char* path, int weight)
+	: atlas(resolution, resolution) {
 
 		this->base = 100;
 
@@ -89,16 +92,16 @@ namespace plgl {
 			throw std::runtime_error {"Failed to initialize FreeType library!"};
 		}
 
-		this->handle = loadFont(freetype, path);
+		this->font = loadFont(freetype, path);
 
-		if (!handle) {
+		if (!font) {
 			throw std::runtime_error {std::string ("Failed to open font: '") + path + "'"};
 		}
 
 		std::vector<msdfgen::FontVariationAxis> axes;
-		msdfgen::listFontVariationAxes(axes, freetype, handle);
+		msdfgen::listFontVariationAxes(axes, freetype, font);
 
-		FT_Face face = getFreeType(this->handle);
+		FT_Face face = getFreeType(this->font);
 		printf("Loaded font '%s'", face->family_name);
 
 		for (auto axis : axes) {
@@ -106,7 +109,7 @@ namespace plgl {
 		}
 
 		printf("\n");
-		msdfgen::setFontVariationAxis(freetype, handle, "Weight", weight);
+		msdfgen::setFontVariationAxis(freetype, font, "Weight", weight);
 
 	}
 
@@ -124,11 +127,11 @@ namespace plgl {
 		GlyphQuad quad;
 
 		double kerning = 0;
-		float iw = 1.0f / width;
-		float ih = 1.0f / height;
+		float iw = 1.0f / width();
+		float ih = 1.0f / height();
 
 		if (prev != 0) {
-			msdfgen::getKerning(kerning, handle, prev, unicode, msdfgen::FONT_SCALING_EM_NORMALIZED);
+			msdfgen::getKerning(kerning, font, prev, unicode, msdfgen::FONT_SCALING_EM_NORMALIZED);
 		}
 
 		if (kerning != 0) {
@@ -138,9 +141,7 @@ namespace plgl {
 		auto pair = cdata.find(unicode);
 
 		if (pair == cdata.end()) {
-			loadUnicode(handle, unicode, 64, 64, 6, on_resize);
-
-			prepare();
+			loadUnicode(font, unicode, 64, 6, on_resize);
 			return getBakedQuad(x, y, scale, unicode, prev, on_resize);
 		}
 
@@ -164,11 +165,20 @@ namespace plgl {
 
 	}
 
-	void Font::prepare() {
-		if (modified) {
-			Image& image = atlas.getImage();
-			upload(image.data(), image.width(), image.height(), 4);
-		}
+	void Font::use() const {
+		atlas.use();
+	}
+
+	int Font::handle() const {
+		return atlas.handle();
+	}
+
+	int Font::width() const {
+		return atlas.width();
+	}
+
+	int Font::height() const {
+		return atlas.height();
 	}
 
 }

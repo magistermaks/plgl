@@ -100,8 +100,8 @@ namespace plgl {
 			void texture(Texture& t, float bx, float by, float ex, float ey) {
 				useTexture(t);
 
-				float w = t.getWidth();
-				float h = t.getHeight();
+				float w = t.width();
+				float h = t.height();
 
 				this->bx = std::min(bx, w) / w;
 				this->by = std::min(by, h) / h;
@@ -113,10 +113,10 @@ namespace plgl {
 			}
 
 			void texture(Texture& t) {
-				texture(t, 0, 0, t.getWidth(), t.getHeight());
+				texture(t, 0, 0, t.width(), t.height());
 
-				this->tw = t.getWidth();
-				this->th = t.getHeight();
+				this->tw = t.width();
+				this->th = t.height();
 			}
 
 			void font(Font& f) {

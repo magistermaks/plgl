@@ -5,14 +5,25 @@
 
 namespace plgl {
 
-	class Texture {
+	class PixelBuffer {
+
+		public:
+
+			virtual ~PixelBuffer();
+
+			virtual void use() const = 0;
+			virtual int handle() const = 0;
+			virtual int width() const = 0;
+			virtual int height() const = 0;
+
+	};
+
+	class Texture : public PixelBuffer {
 
 		protected:
 
 			GLuint tid;
-			int channels;
-			int width;
-			int height;
+			int c, w, h;
 
 			static GLenum getFormat(int channels);
 			void upload(const void* data, size_t width, size_t height, size_t channels);
@@ -25,26 +36,26 @@ namespace plgl {
 			/// Free resources associated with this texture
 			void close();
 
-			/// Bind this OpenGL Texture
-			void use() const;
-
 			/// Upload an image into this Texture
 			void upload(Image& image);
 
+			/// Bind this OpenGL Texture
+			void use() const override;
+
 			/// Get OpenGL Texture handle
-			GLuint getTid() const;
+			int handle() const override;
 
 			/// Get image width in pixels
-			int getWidth() const;
+			int width() const override;
 
 			/// Get image height in pixels
-			int getHeight() const;
+			int height() const override;
 
 			/// Copy image from from Texture into a Image buffer
-			Image getPixels() const;
+			Image pixels() const;
 
 			/// Copy image from Texture and save it into a file
-			void save(const std::string& path) const;
+			virtual void save(const std::string& path) const;
 
 	};
 
