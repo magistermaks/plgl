@@ -1,5 +1,6 @@
 
 #include "window.hpp"
+#include "time.hpp"
 #include "sound/system.hpp"
 
 #define UNTITLED_DEFAULT "Untitled"
@@ -101,6 +102,18 @@ void plgl::swap() {
 	sound_system->update();
 	glClear(GL_COLOR_BUFFER_BIT);
 	frame_count ++;
+}
+
+void plgl::window_pause() {
+	impl::trigger(WINDOW_DRAW);
+	renderer->flush();
+	winxSwapBuffers();
+
+	while (!should_close) {
+		winxPollEvents();
+		sound_system->update();
+		plgl::sleep(10ms);
+	}
 }
 
 void plgl::cursor_capture(bool capture) {

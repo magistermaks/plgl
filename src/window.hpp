@@ -223,6 +223,18 @@ namespace plgl {
 	void swap();
 
 	/**
+	 * @brief Do nothing and wait for user to close the window
+	 *
+	 * Doesn't clear the screen and waits for user to close the window
+	 * using the close button. Can be useful if you want to draw a single image.
+	 * Don't use this if you intend to draw continuously. You should still call plgl::close(),
+	 * after this method returns.
+	 *
+	 * @see plgl::close()
+	 */
+	void window_pause();
+
+	/**
 	 * @brief Forces the mouse cursor to stay within the bounds of the window.
 	 *
 	 * Makes the cursor unable to move

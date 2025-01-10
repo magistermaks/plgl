@@ -25,7 +25,7 @@ int main() {
 
 	bool clip_mode = false;
 	Texture cat {"assets/cat.png"};
-	Font fnt {"assets/OpenSans-Variable.ttf"};
+	Font sans {"assets/OpenSans-Variable.ttf"};
 	Sound coin {"assets/coin.ogg"};
 
 	listen(WINDOW_CLOSE, [] () {
@@ -85,7 +85,7 @@ int main() {
 		int idx = (frame_count / 60 / 3) % welcome.size();
 
 		tint(255, 70, 70);
-		font(fnt);
+		font(sans);
 		size(80);
 		text(10, height - 40, welcome[idx]);
 
