@@ -7,6 +7,36 @@ namespace plgl {
 	 * Renderer
 	 */
 
+	void Renderer::slanted_line(Vec2 p1, Vec2 d1, Vec2 p2, Vec2 d2) {
+		use(color_pipeline);
+
+		if (!stroke_flag) {
+			return;
+		}
+
+		float half = stroke_width * 0.5f;
+
+		// Calculate the vector along the end side of a segment line
+		Vec2 s1 = d1.perp() * half;
+		Vec2 s2 = d2.perp() * half;
+
+		// Vertices near the P1 point
+		Vec2 a1 = p1 + s1;
+		Vec2 a2 = p1 - s1;
+
+		// Vertices near the P2 point
+		Vec2 b1 = p2 + s2;
+		Vec2 b2 = p2 - s2;
+
+		svert(a1.x, a1.y);
+		svert(a2.x, a2.y);
+		svert(b1.x, b1.y);
+
+		svert(b1.x, b1.y);
+		svert(a2.x, a2.y);
+		svert(b2.x, b2.y);
+	}
+
 	Renderer::Renderer() {
 		quality(MEDIUM);
 		fill(255, 255, 255);
@@ -163,6 +193,80 @@ namespace plgl {
 			fvert(bx, by);
 		}
 
+	}
+
+	float Renderer::bezier_point(float a, float b, float c, float d, float t) {
+		const float it = 1 - t;
+
+		const float it2 = it * it;
+		const float it3 = it * it2;
+
+		const float t2 = t * t;
+		const float t3 = t * t2;
+
+		return a * it3 + 3 * it2 * t * b + 3 * it * t2 * c + t3 * d;
+	}
+
+	float Renderer::bezier_tangent(float a, float b, float c, float d, float t) {
+		const float it = 1 - t;
+
+		const float it2 = it * it;
+		const float t2 = t * t;
+
+		return 3 * it2 * (b - a) + 6 * it * t * (c - b) + 3 * t2 * (d - c);
+	}
+
+	void Renderer::bezier(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy) {
+		float t = 0;
+
+		bool draw = false;
+		Vec2 last_point;
+		Vec2 last_tangent;
+
+		// the curve will be no longer than this upper bound
+		const float bound = dist(ax, ay, bx, by) + dist(bx, by, cx, cy) + dist(cx, cy, dx, dy);
+
+		// Quality control specifies the spacing between T values that are sampled
+		float spacing = 10.0f + 60.0f * draw_quality;
+		float parts = bound / spacing;
+		float segments = parts + (12 / parts + 3);
+		float step = 1.0f / segments;
+
+		// The last point is calculated outside the loop
+		const float ex = bezier_tangent(ax, bx, cx, dx, 1.0f);
+		const float ey = bezier_tangent(ay, by, cy, dy, 1.0f);
+
+		while (t < 1.0f) {
+
+			// Calculate point on the bezier curve
+			const float px = bezier_point(ax, bx, cx, dx, t);
+			const float py = bezier_point(ay, by, cy, dy, t);
+			const Vec2 point {px, py};
+
+			// Calculate the tangent at the same point
+			const float tx = bezier_tangent(ax, bx, cx, dx, t);
+			const float ty = bezier_tangent(ay, by, cy, dy, t);
+			const Vec2 tangent = Vec2 {tx, ty}.norm();
+
+			if (draw) {
+				slanted_line(last_point, last_tangent, point, tangent);
+			}
+
+			last_point = point;
+			last_tangent = tangent;
+			draw = true;
+			t += step;
+		}
+
+		// Handle the endpoint
+		Vec2 point {dx, dy};
+		Vec2 tangent = Vec2 {ex, ey}.norm();
+		slanted_line(last_point, last_tangent, point, tangent);
+
+	}
+
+	void Renderer::bezier(Vec2 a, Vec2 b, Vec2 c, Vec2 d) {
+		bezier(a.x, a.y, b.x, b.y, c.x, c.y, d.x, d.y);
 	}
 
 	void Renderer::circle(float x, float y, float radius) {

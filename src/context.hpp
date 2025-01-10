@@ -84,6 +84,22 @@ namespace plgl {
 		renderer->arc(x, y, hrad, vrad, angle, start, mode);
 	}
 
+	inline float bezier_point(float a, float b, float c, float d, float t) {
+		return renderer->bezier_tangent(a, b, c, d, t);
+	}
+
+	inline float bezier_tangent(float a, float b, float c, float d, float t) {
+		return renderer->bezier_tangent(a, b, c, d, t);
+	}
+
+	inline void bezier(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy) {
+		renderer->bezier(ax, ay, bx, by, cx, cy, dx, dy);
+	}
+
+	inline void bezier(Vec2 a, Vec2 b, Vec2 c, Vec2 d) {
+		renderer->bezier(a, b, c, d);
+	}
+
 	inline void circle(float x, float y, float radius) {
 		renderer->circle(x, y, radius);
 	}

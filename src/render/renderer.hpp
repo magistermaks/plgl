@@ -21,7 +21,11 @@ namespace plgl {
 			int tw, th;
 			float text_size;
 			float bx, by, ex, ey;
+
+			// value in range [0, 1], lower is better
 			float draw_quality;
+
+			void slanted_line(Vec2 p1, Vec2 d1, Vec2 p2, Vec2 d2);
 
 		public:
 
@@ -63,6 +67,14 @@ namespace plgl {
 			void arc(float x, float y, float hrad, float vrad, float start, float angle, ArcMode mode = OPEN_PIE);
 
 		public:
+
+			float bezier_point(float a, float b, float c, float d, float t);
+
+			float bezier_tangent(float a, float b, float c, float d, float t);
+
+			void bezier(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy);
+
+			void bezier(Vec2 a, Vec2 b, Vec2 c, Vec2 d);
 
 			void circle(float x, float y, float radius);
 

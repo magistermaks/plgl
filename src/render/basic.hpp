@@ -38,9 +38,11 @@ namespace plgl::impl {
 			virtual ~BasicRenderer();
 
 			void use(Pipeline* pipeline);
+
 			void svert(float x, float y);
 			void fvert(float x, float y);
 			void ivert(float x, float y, float u, float v);
+
 			float getStrokeWidth();
 			PixelBuffer& getTexture();
 			void registerTexture(PixelBuffer& texture, Shader& shader);

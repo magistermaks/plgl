@@ -62,6 +62,11 @@ int main() {
 		stroke(200, 0, 0, 200);
 		line(100, 50, 200, 70);
 
+		float ox = 140;
+		stroke(50, 0, 200);
+		bezier(170 + ox, 40, 20 + ox, 20, 180 + ox, 180, 30 + ox, 160);
+
+		stroke(200, 0, 0, 200);
 		fill(OFF);
 		circle(200, 150, 60);
 
