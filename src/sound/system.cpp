@@ -40,73 +40,118 @@ namespace plgl {
 		alcCloseDevice(device);
 	}
 
-	std::weak_ptr<impl::SoundHandle> SoundSystem::load(const std::string& path) {
+	std::shared_ptr<impl::SoundHandle> SoundSystem::load() {
 
-		// Create new buffer
-		auto& sound = sounds.emplace_back(std::make_shared<impl::SoundHandle>());
+		std::shared_ptr<impl::SoundHandle> sound;
 
-		int channels;
-		int samples;
-		short* data;
-
-		long count = stb_vorbis_decode_filename(path.c_str(), &channels, &samples, &data);
-
-		if (count == -1) {
-			fault("Failed to load sound: '{}'!", path);
+		// Try to recycle sound buffer,
+		// or create new one if that can't be done
+		if (!unused.empty()) {
+			sound = unused.back();
+			unused.pop_back();
+			sounds.emplace_back(sound);
+		} else {
+			sound = sounds.emplace_back(std::make_shared<impl::SoundHandle>());
 		}
 
-		ALenum format = (channels > 1) ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
-		int length = count * channels * sizeof(uint16_t);
-
-		alBufferData(sound->id, format, data, length, samples);
-		impl::alCheckError("alBufferData");
-
-		// the documentation for STB vorbis is non-existent
-		// i assume this is what should be done, other STB libraries typically had a
-		// custom free function but for this one i couldn't find any
-		free(data);
-
-		return {sound};
+		return sound;
 
 	}
 
-	std::weak_ptr<impl::SourceHandle> SoundSystem::play() {
+	std::shared_ptr<impl::SourceHandle> SoundSystem::play(const std::shared_ptr<impl::SoundHandle>& sound) {
+		if (!sound) {
+			return {};
+		}
+
+		sound->sources ++;
 		sound_count ++;
-		return {sources.emplace_back(std::make_shared<impl::SourceHandle>())};
+		return sources.emplace_back(std::make_shared<impl::SourceHandle>(sound->id));
 	}
 
 	void SoundSystem::update() {
-		sources.remove_if([] (const std::shared_ptr<impl::SourceHandle>& source) {
-			ALenum state = AL_STOPPED;
-			alGetSourcei(source->id, AL_SOURCE_STATE, &state);
-			return state == AL_STOPPED;
+		sources.remove_if([&] (const std::shared_ptr<impl::SourceHandle>& source) {
+			if (!source || source->should_remove()) {
+				for (auto& sound : sounds) {
+					if (sound->id == source->buffer) {
+						sound->sources --;
+					}
+				}
+
+				return true;
+			}
+
+			return false;
+		});
+
+		sounds.remove_if([this] (const std::shared_ptr<impl::SoundHandle>& sound) {
+			if (!sound || sound->should_remove()) {
+				unused.push_back(sound);
+				return true;
+			}
+
+			return false;
 		});
 
 		sound_count = sources.size();
 	}
 
+	int SoundSystem::frequency() {
+		int samples;
+		alcGetIntegerv(device, ALC_FREQUENCY, 1, &samples);
+		return samples;
+	}
+
 	void SoundSystem::unload_all() {
 		stop_all();
+		unused.clear();
 		sounds.clear();
 	}
 
 	void SoundSystem::stop_all() {
 		sound_count = 0;
-		sources.clear();
+
+		for (auto& ptr : sources) {
+			if (ptr) {
+				Source source {ptr};
+				source.stop();
+			}
+		}
 	}
 
 	void SoundSystem::pause_all() {
-		for (auto& shared_handle : sources) {
-			Source source {shared_handle};
-			source.pause();
+		for (auto& ptr : sources) {
+			if (ptr) {
+				Source source {ptr};
+				source.pause();
+			}
 		}
 	}
 
 	void SoundSystem::resume_all() {
-		for (auto& shared_handle : sources) {
-			Source source {shared_handle};
-			source.resume();
+		for (auto& ptr : sources) {
+			if (ptr) {
+				Source source {ptr};
+				source.resume();
+			}
 		}
+	}
+
+	Source SoundSystem::tone(Waveform waveform, float volume, float frequency, int milliseconds) {
+		Sound sound {[frequency, waveform] (std::vector<short>& buffer, int sps) {
+
+			// number of samples per period
+			const int period = sps / frequency;
+			const int amplitude = 8000;
+
+			if (waveform == SQUARE_WAVE) generate_square_wave(buffer, period, amplitude);
+			if (waveform == TRIANGLE_WAVE) generate_triangle_wave(buffer, period, amplitude);
+			if (waveform == SAWTOOTH_WAVE) generate_sawtooth_wave(buffer, period, amplitude);
+			if (waveform == SINE_WAVE) generate_sine_wave(buffer, period, amplitude);
+
+		}, milliseconds};
+
+		sound.discard();
+		return sound.play(volume);
 	}
 
 }

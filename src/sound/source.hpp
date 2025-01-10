@@ -51,8 +51,7 @@ namespace plgl {
 
 		public:
 
-			Source(std::shared_ptr<impl::SourceHandle> source, std::shared_ptr<impl::SoundHandle> sound);
-			Source(std::shared_ptr<impl::SourceHandle>& source);
+			Source(const std::shared_ptr<impl::SourceHandle>& source);
 
 			/**
 			 * @brief Resume sound playback

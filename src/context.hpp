@@ -186,16 +186,20 @@ namespace plgl {
 	 * Sound
 	 */
 
-	inline void stop_all() {
-		sound_system->stop_all();
+	inline void stop_sounds() {
+		SoundSystem::get()->stop_all();
 	}
 
-	inline void pause_all() {
-		sound_system->pause_all();
+	inline void pause_sounds() {
+		SoundSystem::get()->pause_all();
 	}
 
-	inline void resume_all() {
-		sound_system->resume_all();
+	inline void resume_sounds() {
+		SoundSystem::get()->resume_all();
+	}
+
+	inline Source tone(Waveform waveform, float volume, float frequency, int milliseconds = 100) {
+		SoundSystem::get()->tone(waveform, volume, frequency, milliseconds);
 	}
 
 };

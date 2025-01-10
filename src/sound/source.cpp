@@ -4,18 +4,8 @@
 
 namespace plgl {
 
-	Source::Source(std::shared_ptr<impl::SourceHandle> source, std::shared_ptr<impl::SoundHandle> sound)
-	: handle(source) {
-		if (source && sound) {
-			alSourcei(source->id, AL_BUFFER, sound->id);
-			impl::alCheckError("alSourcei");
-		}
-	}
-
-	Source::Source(std::shared_ptr<impl::SourceHandle>& source)
-	: handle(source) {
-
-	}
+	Source::Source(const std::shared_ptr<impl::SourceHandle>& source)
+	: handle(source) {}
 
 	Source& Source::resume() {
 		if (std::shared_ptr<impl::SourceHandle> source = handle.lock()) {

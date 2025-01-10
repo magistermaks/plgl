@@ -2,6 +2,7 @@
 
 #include "external.hpp"
 #include "handles.hpp"
+#include "generator.hpp"
 
 namespace plgl {
 
@@ -48,7 +49,7 @@ namespace plgl {
 		public:
 
 			/**
-			 * @brief Load new sound
+			 * @brief Load new sound from file
 			 *
 			 * Create new sound from a sound file (Only .OGG Vorbis sound files are supported)
 			 * Remember to only load the sound once, then you can play it using play().
@@ -79,6 +80,46 @@ namespace plgl {
 			 * @param[in] path Path to the .ogg sound file
 			 */
 			Sound(const std::string& path);
+
+			/**
+			 * @brief Create sound using waveform generator
+			 *
+			 * Create new sound dynamically using waveform generator.
+			 * Sounds can only be loaded after the window is opened using plgl::open()
+			 *
+			 * @example
+			 * @code{.cpp}
+			 * int main() {
+			 *
+			 *    // Open window and start sound system first
+			 *    open("My Sound Application");
+			 *
+			 *    // Load sound file
+			 *    Sound my_sound {WAVE_SQUARE};
+			 *
+			 *    // play every second
+			 *    while (!should_close) {
+			 *       my_sound.play();
+			 *       sleep(1s);
+			 *    }
+			 *
+			 *    // This will both close the window as well as stop the sound system
+			 *    close();
+			 *
+			 * }
+			 * @endcode
+			 *
+			 * @param[in] generator Predefined generator or a custom function
+			 */
+			Sound(const WaveformGenerator& generator, int milliseconds);
+
+			/**
+			 * @brief Discard and delete this buffer
+			 *
+			 * Delete this buffer and free related resources as soon as
+			 * no sound source uses it anymore. After that it will become unusable.
+			 */
+			void discard();
 
 			/**
 			 * @brief Play this sound
