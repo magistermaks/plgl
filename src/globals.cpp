@@ -10,6 +10,7 @@ long plgl::width;
 long plgl::height;
 long plgl::frame_count = 0;
 long plgl::frame_rate = 0;
+long plgl::sound_count = 0;
 
 long plgl::mouse_scroll;
 long plgl::mouse_x;
@@ -25,4 +26,5 @@ bool plgl::key_pressed = false;
 
 std::string plgl::last_error = "";
 plgl::Renderer* plgl::renderer = nullptr;
+plgl::SoundSystem* plgl::sound_system = nullptr;
 plgl::EventHandler plgl::impl::user_event_handlers[impl::EVENT_COUNT] = {};

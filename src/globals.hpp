@@ -5,6 +5,7 @@
 namespace plgl {
 
 	class Renderer;
+	class SoundSystem;
 
 	extern bool opened;
 	extern bool focused;
@@ -13,6 +14,7 @@ namespace plgl {
 	extern long height;
 	extern long frame_count;
 	extern long frame_rate;
+	extern long sound_count;
 
 	extern long mouse_scroll;
 	extern long mouse_x;
@@ -28,6 +30,7 @@ namespace plgl {
 
 	extern std::string last_error;
 	extern Renderer* renderer;
+	extern SoundSystem* sound_system;
 
 	namespace impl {
 		extern EventHandler user_event_handlers[impl::EVENT_COUNT];

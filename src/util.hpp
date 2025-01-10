@@ -23,19 +23,36 @@ namespace plgl {
 
 	template <trait::ConvertibleToStdString T>
 	inline std::string str(const T& value) {
+		if constexpr (std::is_pointer<T>().value) {
+			if (value == nullptr) return "(null)";
+		}
+
 		return std::to_string(value);
 	}
 
 	template <trait::CastableToStdString T>
 	inline std::string str(const T& value) {
+		if constexpr (std::is_pointer<T>().value) {
+			if (value == nullptr) return "(null)";
+		}
+
 		return value;
 	}
 
 	template <trait::AppendableToStdString T>
 	inline std::string str(const T& value) {
+		if constexpr (std::is_pointer<T>().value) {
+			if (value == nullptr) return "(null)";
+		}
+
 		std::stringstream ss;
 		ss << value;
 		return ss.str();
+	}
+
+	template <>
+	inline std::string str<>(const nullptr_t& null) {
+		return "(nullptr)";
 	}
 
 	template <typename T, class... Args>

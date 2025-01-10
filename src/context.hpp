@@ -1,12 +1,17 @@
 #pragma once
 
 #include "render/renderer.hpp"
+#include "sound/system.hpp"
 #include "window.hpp"
 #include "color.hpp"
 #include "globals.hpp"
 #include "time.hpp"
 
 namespace plgl {
+
+	/*
+	 * Renderer
+	 */
 
 	inline void stroke(Disabled disabled) {
 		renderer->stroke(disabled);
@@ -175,6 +180,22 @@ namespace plgl {
 
 	inline void ellipse(Vec2 p1, float hrad, float vrad) {
 		renderer->ellipse(p1, hrad, vrad);
+	}
+
+	/*
+	 * Sound
+	 */
+
+	inline void stop_all() {
+		sound_system->stop_all();
+	}
+
+	inline void pause_all() {
+		sound_system->pause_all();
+	}
+
+	inline void resume_all() {
+		sound_system->resume_all();
 	}
 
 };

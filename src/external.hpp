@@ -12,6 +12,10 @@
 #include "stb_image.h"
 #include "stb_image_write.h"
 
+// OpenAL
+#include <AL/al.h>
+#include <AL/alc.h>
+
 // C stdlib
 #include <cstdio>
 #include <cstring>

@@ -1,5 +1,6 @@
 
 #include "window.hpp"
+#include "sound/system.hpp"
 
 #define UNTITLED_DEFAULT "Untitled"
 static WinxCursor* null_cursor = nullptr;
@@ -35,6 +36,7 @@ void plgl::open(const std::string& title, int width, int height) {
 	plgl::width = width;
 	plgl::height = height;
 	plgl::renderer = new Renderer();
+	plgl::sound_system = new SoundSystem();
 	plgl::focused = winxGetFocus();
 
 	// setup WINX event handlers
@@ -73,6 +75,9 @@ void plgl::close() {
 
 	delete plgl::renderer;
 	plgl::renderer = nullptr;
+
+	delete plgl::sound_system;
+	plgl::sound_system = nullptr;
 }
 
 void plgl::title(const std::string& title) {
@@ -93,6 +98,7 @@ void plgl::swap() {
 	renderer->flush();
 	winxSwapBuffers();
 	winxPollEvents();
+	sound_system->update();
 	glClear(GL_COLOR_BUFFER_BIT);
 	frame_count ++;
 }

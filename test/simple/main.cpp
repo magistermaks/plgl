@@ -26,12 +26,14 @@ int main() {
 	bool clip_mode = false;
 	Texture cat {"assets/cat.png"};
 	Font fnt {"assets/OpenSans-Variable.ttf"};
+	Sound coin {"assets/coin.ogg"};
 
 	listen(WINDOW_CLOSE, [] () {
 		printf("Goodbye!\n");
 	});
 
 	listen(MOUSE_RELEASED, [&] () {
+		coin.play();
 		clip_mode = !clip_mode;
 	});
 

@@ -13,6 +13,7 @@ find_package(Threads REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(X11 REQUIRED)
 find_package(Freetype REQUIRED)
+find_package(OpenAL)
 
 # Try: cmake . -B build && cmake --build build/
 if (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
@@ -32,11 +33,18 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	endif()
 endif()
 
-#FetchContent_Declare(
-#		openal
-#		GIT_REPOSITORY https://github.com/kcat/openal-soft
-#		GIT_TAG 1.23.1
-#)
+if (NOT OpenAL_FOUND)
+	message(STATUS "OpenAL was NOT found, falling back to OpenAL-Soft!")
+
+	FetchContent_Declare(
+			openal-soft
+			GIT_REPOSITORY https://github.com/kcat/openal-soft
+			GIT_TAG 1.23.1
+			GIT_PROGRESS TRUE
+	)
+
+	FetchContent_MakeAvailable(openal-soft)
+endif()
 
 FetchContent_Declare(
 		msdfgen
@@ -87,6 +95,7 @@ include_directories(
 		${GLAD_INCLUDE_DIRS}                     # Headers in ./glad/
 		${winx_SOURCE_DIR}                       # Headers in ./
 		${ankerl_SOURCE_DIR}/include             # Headers in ./ankerl
+		${OpenAL_INCLUDE_DIRS}                   # Headers in ./AL
 )
 
 file(GLOB_RECURSE PLGL_SOURCES
@@ -112,6 +121,7 @@ set(PLGL_LIBS
 		msdfgen::msdfgen-ext
 		Freetype::Freetype
 		unordered_dense::unordered_dense
+		OpenAL::OpenAL
 )
 
 target_link_libraries(PLGL PRIVATE ${PLGL_LIBS})
