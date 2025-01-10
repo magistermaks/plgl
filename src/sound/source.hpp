@@ -17,11 +17,14 @@ namespace plgl {
 			Source(const Sound& sound);
 			~Source();
 
+			Source& resume();
+			Source& pause();
+			Source& gain(float value);
+			Source& pitch(float value);
+			Source& loop(bool enable = true);
+
 			ALint state() const;
-			void resume();
-			void pause();
 			void stop();
-			void loop(bool enable = true);
 
 	};
 

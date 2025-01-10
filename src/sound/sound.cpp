@@ -45,8 +45,8 @@ namespace plgl {
 		return al_buffer;
 	}
 
-	Source& Sound::play() const {
-		return plgl::sound_system->play(*this);
+	Source& Sound::play(float volume, float pitch) const {
+		return plgl::sound_system->play(*this).gain(volume).pitch(pitch).resume();
 	}
 
 }

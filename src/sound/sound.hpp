@@ -20,7 +20,7 @@ namespace plgl {
 			~Sound();
 
 			ALuint handle() const;
-			Source& play() const;
+			Source& play(float volume = 1.0f, float pitch = 1.0f) const;
 
 	};
 
