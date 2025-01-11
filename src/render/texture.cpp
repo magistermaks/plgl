@@ -54,7 +54,7 @@ namespace plgl {
 
 	Texture::Texture(const char* path)
 	: Texture() {
-		Image image = Image::loadFromFile(path);
+		Image image = Image::load(path);
 		upload(image);
 		image.close();
 	}

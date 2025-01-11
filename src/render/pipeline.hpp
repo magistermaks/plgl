@@ -25,7 +25,10 @@ namespace plgl {
 
 		public:
 
+			/// Draw data in the pipeline
 			void draw();
+
+			/// Draw data and reset buffers
 			void flush();
 
 	};

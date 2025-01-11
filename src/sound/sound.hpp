@@ -94,8 +94,10 @@ namespace plgl {
 			 *    // Open window and start sound system first
 			 *    open("My Sound Application");
 			 *
-			 *    // Load sound file
-			 *    Sound my_sound {WAVE_SQUARE};
+			 *    // Dynamically create sound data
+			 *    Sound my_sound {[] (std::vector<short>& buffer, int frequency) {
+			 *       // generate sound data
+			 *    }, 100};
 			 *
 			 *    // play every second
 			 *    while (!should_close) {
@@ -109,7 +111,10 @@ namespace plgl {
 			 * }
 			 * @endcode
 			 *
-			 * @param[in] generator Predefined generator or a custom function
+			 * @see plgl::tone()
+			 *
+			 * @param[in] generator    Predefined generator or a custom function
+			 * @param[in] milliseconds Number of milliseconds to record
 			 */
 			Sound(const WaveformGenerator& generator, int milliseconds);
 

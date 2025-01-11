@@ -92,7 +92,7 @@ namespace plgl {
 	}
 
 	Sprite Atlas::submit(const std::string& path, const std::function<void()>& on_resize) {
-		Image image = Image::loadFromFile(path);
+		Image image = Image::load(path);
 		Sprite sprite = submit(image, on_resize);
 		image.close();
 

@@ -30,6 +30,8 @@ namespace plgl {
 
 			void update();
 
+		public:
+
 			/**
 			 * @brief Get preferred sampling rate
 			 *
@@ -68,12 +70,12 @@ namespace plgl {
 			void resume_all();
 
 			/**
-			 * @brief Play a tne using the selected waveform preset
+			 * @brief Play a tone using the selected waveform preset
 			 *
-			 * @param waveform     Shape of the wave to play
-			 * @param volume       Loudness of the tone to play
-			 * @param frequency    Hertz, you would want to use values in range 50 to 15000
-			 * @param milliseconds Optionally, number of milliseconds to play, should be below 1000
+			 * @param[in] waveform     Shape of the wave to play
+			 * @param[in] volume       Loudness of the tone to play
+			 * @param[in] frequency    Hertz, you would want to use values in range 50 to 15000
+			 * @param[in] milliseconds Optionally, number of milliseconds to play, should be below 1000
 			 */
 			Source tone(Waveform waveform, float volume, float frequency, int milliseconds = 100);
 

@@ -95,6 +95,18 @@ namespace plgl {
 		}
 	}
 
+	void Image::clear(std::initializer_list<uint8_t> value) {
+		if ((int) value.size() != channels()) {
+			fault("Can't clear image with {} channels using value with {} channels!", channels(), value.size());
+		}
+
+		for (int y = 0; y < (int) h; y ++) {
+			for (int x = 0; x < (int) w; x++) {
+				memcpy(pixel(x, y).data(), value.begin(), c);
+			}
+		}
+	}
+
 	Pixel Image::pixel(int x, int y) {
 		return {((uint8_t*) pixels) + (x + y * w) * channels(), (uint8_t) c};
 	}
@@ -103,7 +115,7 @@ namespace plgl {
 		stbi_write_png(path.c_str(), w, h, c, pixels, w * c);
 	}
 
-	Image Image::loadFromFile(const std::string& path, int channels) {
+	Image Image::load(const std::string& path, int channels) {
 		int ignored, w, h;
 		void* pixels = stbi_load(path.c_str(), &w, &h, &ignored, channels);
 

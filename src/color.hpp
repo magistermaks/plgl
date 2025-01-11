@@ -93,22 +93,47 @@ namespace plgl {
 
 	};
 
+	/**
+	 * @brief Unpack alpha channel value from 32 bit ARGB color code
+	 *
+	 * @param[in] argb The ARGB code to unpack
+	 */
 	inline int unpack_alpha(int argb) {
 		return (argb >> 24) & 0xFF;
 	}
 
+	/**
+	 * @brief Unpack red channel value from 32 bit ARGB color code
+	 *
+	 * @param[in] argb The ARGB code to unpack
+	 */
 	inline int unpack_red(int argb) {
 		return (argb >> 16) & 0xFF;
 	}
 
+	/**
+	 * @brief Unpack green channel value from 32 bit ARGB color code
+	 *
+	 * @param[in] argb The ARGB code to unpack
+	 */
 	inline int unpack_green(int argb) {
 		return (argb >> 8) & 0xFF;
 	}
 
+	/**
+	 * @brief Unpack blue channel value from 32 bit ARGB color code
+	 *
+	 * @param[in] argb The ARGB code to unpack
+	 */
 	inline int unpack_blue(int argb) {
 		return argb & 0xFF;
 	}
 
+	/**
+	 * @brief Convert 32 bit ARGB color code to a RGBA color object
+	 *
+	 * @param[in] argb The ARGB code to unpack
+	 */
 	inline RGBA unpack_argb(int argb) {
 		return {argb, (float) unpack_alpha(argb)};
 	}
