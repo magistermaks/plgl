@@ -107,6 +107,8 @@ namespace plgl {
 			void clear(std::initializer_list<uint8_t> value);
 
 
+			void fill(int x, int y, int w, int h, std::initializer_list<uint8_t> value);
+
 			Pixel pixel(int x, int y);
 
 			/**

@@ -82,8 +82,7 @@ namespace plgl {
 		return false;
 	}
 
-	Font::Font(const char* path, int weight)
-	: atlas(resolution, resolution) {
+	Font::Font(const char* path, int weight) {
 
 		this->base = 100;
 

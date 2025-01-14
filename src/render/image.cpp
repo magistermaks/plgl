@@ -96,12 +96,19 @@ namespace plgl {
 	}
 
 	void Image::clear(std::initializer_list<uint8_t> value) {
+		fill(0, 0, w, h, value);
+	}
+
+	void Image::fill(int ox, int oy, int ow, int oh, std::initializer_list<uint8_t> value) {
+		int ex = ox + ow;
+		int ey = oy + oh;
+
 		if ((int) value.size() != channels()) {
 			fault("Can't clear image with {} channels using value with {} channels!", channels(), value.size());
 		}
 
-		for (int y = 0; y < (int) h; y ++) {
-			for (int x = 0; x < (int) w; x++) {
+		for (int y = oy; y < (int) ey; y ++) {
+			for (int x = ox; x < (int) ex; x++) {
 				memcpy(pixel(x, y).data(), value.begin(), c);
 			}
 		}
