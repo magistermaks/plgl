@@ -76,6 +76,14 @@ FetchContent_Declare(
 		GIT_TAG v4.4.0
 )
 
+FetchContent_Declare(
+		ember
+		GIT_REPOSITORY https://github.com/magistermaks/ember
+		GIT_TAG 671a6b9ffa218fa3e7e0803692db63f6d6311e73
+)
+
+set(EMBER_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
+
 set(GLAD_PROFILE "core"	CACHE STRING "OpenGL profile")
 set(GLAD_GENERATOR "c"	CACHE STRING "Language to generate the binding for")
 
@@ -85,12 +93,13 @@ set(MSDFGEN_USE_SKIA OFF CACHE BOOL "" FORCE)
 set(MSDFGEN_USE_VCPKG OFF CACHE BOOL "" FORCE)
 set(MSDFGEN_BUILD_STANDALONE OFF CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(winx stb glad msdfgen ankerl)
+FetchContent_MakeAvailable(winx stb glad msdfgen ankerl ember)
 
 include_directories(
 		.
 		lib/
 		src/
+		${CMAKE_CURRENT_BINARY_DIR}
 		${stb_SOURCE_DIR}                        # Headers in ./
 		${GLAD_INCLUDE_DIRS}                     # Headers in ./glad/
 		${winx_SOURCE_DIR}                       # Headers in ./
@@ -102,6 +111,10 @@ file(GLOB_RECURSE PLGL_SOURCES
 		"src/*.cpp"
 )
 
+add_ember(default_assets HEADER ARGS
+	--file assets/OpenSans-Variable.ttf --name default_font_ttf
+)
+
 add_library(external
 		lib/stb_image.cpp
 		lib/stb_image_write.cpp
@@ -110,6 +123,7 @@ add_library(external
 
 add_library(PLGL
 		${PLGL_SOURCES}
+		${default_assets_header}
 )
 
 set(PLGL_LIBS
@@ -122,6 +136,7 @@ set(PLGL_LIBS
 		Freetype::Freetype
 		unordered_dense::unordered_dense
 		OpenAL::OpenAL
+		default_assets
 )
 
 target_link_libraries(PLGL PRIVATE ${PLGL_LIBS})

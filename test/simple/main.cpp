@@ -16,7 +16,8 @@ std::vector<const char*> welcome = {
 	"Ciao mondo!",
 	"Γεια σου Κόσμο!",
 	"Halló Heimur!",
-	"Hei maailma!"
+	"Hei maailma!",
+	"123456789"
 };
 
 int main() {
@@ -25,7 +26,7 @@ int main() {
 
 	bool clip_mode = false;
 	Texture cat {"assets/cat.png"};
-	Font sans {"assets/OpenSans-Variable.ttf"};
+	Font sans {"default"};
 	Sound coin {"assets/coin.ogg"};
 
 	listen(WINDOW_CLOSE, [] () {

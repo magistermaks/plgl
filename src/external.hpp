@@ -1,5 +1,7 @@
 #pragma once
 
+#include <default_assets.h>
+
 // libraries
 #include <glad/glad.h>
 #include <winx.h>

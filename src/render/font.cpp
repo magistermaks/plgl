@@ -90,7 +90,12 @@ namespace plgl {
 			fault("Failed to initialize FreeType library!");
 		}
 
-		this->font = loadFont(freetype, path);
+		if (std::strcmp(path, "default") == 0) {
+			const auto* bytes = reinterpret_cast<const msdfgen::byte*>(default_font_ttf);
+			this->font = loadFontData(freetype, bytes, sizeof(default_font_ttf));
+		} else {
+			this->font = loadFont(freetype, path);
+		}
 
 		if (!font) {
 			fault("Failed to open font: '{}'", path);
