@@ -6,9 +6,18 @@ This project is not, and does not aim to be, a 1-to-1 or API compatible port,
 both do to the language differences between Java and C++, as well as divergent design decisions.  
 
 #### Running
-* Use `./compile --run main` to run the "main" example
-* Use `./compile --list` to list avaible example programs
-* Use `./compile --help` for aditional info
+The project can be opened in most popular C++ IDEs (like CLion, Visual Studio, or VS Code), to
+compile and run it manually invoke cmake as shown below:
+
+```bash
+# Build
+cmake . -B build -G Ninja
+cmake --build build/
+
+# Run the 'simple' demo
+cd build/test/simple
+./main
+```
 
 #### Example
 **Processing**  
