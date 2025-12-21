@@ -49,7 +49,7 @@ endif()
 FetchContent_Declare(
 		msdfgen
 		GIT_REPOSITORY https://github.com/Chlumsky/msdfgen
-		GIT_TAG v1.12
+		GIT_TAG v1.13
 )
 
 FetchContent_Declare(
@@ -61,31 +61,28 @@ FetchContent_Declare(
 FetchContent_Declare(
 		stb
 		GIT_REPOSITORY https://github.com/nothings/stb
-		GIT_TAG 5c205738c191bcb0abc65c4febfa9bd25ff35234
+		GIT_TAG f1c79c02822848a9bed4315b12c8c8f3761e1296
 )
 
 FetchContent_Declare(
 		glad
-		GIT_REPOSITORY https://github.com/Dav1dde/glad.git
-		GIT_TAG v0.1.36
+		GIT_REPOSITORY https://github.com/Dav1dde/glad
+		GIT_TAG v2.0.8
 )
 
 FetchContent_Declare(
 		ankerl
 		GIT_REPOSITORY https://github.com/martinus/unordered_dense
-		GIT_TAG v4.4.0
+		GIT_TAG v4.8.1
 )
 
 FetchContent_Declare(
 		ember
 		GIT_REPOSITORY https://github.com/magistermaks/ember
-		GIT_TAG 671a6b9ffa218fa3e7e0803692db63f6d6311e73
+		GIT_TAG v1.2.0
 )
 
 set(EMBER_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
-
-set(GLAD_PROFILE "core"	CACHE STRING "OpenGL profile")
-set(GLAD_GENERATOR "c"	CACHE STRING "Language to generate the binding for")
 
 set(MSDFGEN_DISABLE_SVG ON CACHE BOOL "" FORCE)
 set(MSDFGEN_DISABLE_PNG ON CACHE BOOL "" FORCE)
@@ -95,10 +92,31 @@ set(MSDFGEN_BUILD_STANDALONE OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(winx stb glad msdfgen ankerl ember)
 
-include_directories(
+add_subdirectory("${glad_SOURCE_DIR}/cmake" glad_cmake)
+glad_add_library(glad_opengl STATIC LOADER API gl:core=3.3 EXTENSIONS NONE)
+
+file(GLOB_RECURSE PLGL_SOURCES
+		"src/*.cpp"
+)
+
+add_ember(default_assets HEADER ARGS
+		--file assets/OpenSans-Variable.ttf --name default_font_ttf
+)
+
+add_library(PLGL
+		${PLGL_SOURCES}
+		${default_assets_header}
+
+		# External library instantiations
+		lib/stb_image.cpp
+		lib/stb_image_write.cpp
+		lib/stb_vorbis.cpp
+)
+
+include_directories(PLGL PUBLIC
 		.
-		lib/
 		src/
+		lib/
 		${CMAKE_CURRENT_BINARY_DIR}
 		${stb_SOURCE_DIR}                        # Headers in ./
 		${GLAD_INCLUDE_DIRS}                     # Headers in ./glad/
@@ -107,30 +125,10 @@ include_directories(
 		${OpenAL_INCLUDE_DIRS}                   # Headers in ./AL
 )
 
-file(GLOB_RECURSE PLGL_SOURCES
-		"src/*.cpp"
-)
-
-add_ember(default_assets HEADER ARGS
-	--file assets/OpenSans-Variable.ttf --name default_font_ttf
-)
-
-add_library(external
-		lib/stb_image.cpp
-		lib/stb_image_write.cpp
-		lib/stb_vorbis.cpp
-)
-
-add_library(PLGL
-		${PLGL_SOURCES}
-		${default_assets_header}
-)
-
-set(PLGL_LIBS
+target_link_libraries(PLGL PUBLIC
 		Threads::Threads
 		winx
-		external
-		glad
+		glad_opengl
 		msdfgen::msdfgen-core
 		msdfgen::msdfgen-ext
 		Freetype::Freetype
@@ -139,7 +137,6 @@ set(PLGL_LIBS
 		default_assets
 )
 
-target_link_libraries(PLGL PRIVATE ${PLGL_LIBS})
 target_compile_definitions(PLGL PRIVATE "SOURCE_ROOT=\"${CMAKE_SOURCE_DIR}\"")
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

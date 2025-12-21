@@ -24,7 +24,7 @@ void plgl::open(const std::string& title, int width, int height) {
 	}
 
 	// use GLAD to load OpenGL functions
-	gladLoadGL();
+	gladLoaderLoadGL();
 
 	// load deafult values into opengl
 	glEnable(GL_MULTISAMPLE);

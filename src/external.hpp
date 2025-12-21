@@ -3,7 +3,7 @@
 #include <default_assets.h>
 
 // libraries
-#include <glad/glad.h>
+#include <glad/gl.h>
 #include <winx.h>
 #include <lib/perlin.hpp>
 #include "ankerl/unordered_dense.h"
