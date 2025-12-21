@@ -137,10 +137,6 @@ namespace plgl {
 			msdfgen::getKerning(kerning, font, prev, unicode, msdfgen::FONT_SCALING_EM_NORMALIZED);
 		}
 
-		if (kerning != 0) {
-			kerning = kerning;
-		}
-
 		auto pair = cdata.find(unicode);
 
 		if (pair == cdata.end()) {

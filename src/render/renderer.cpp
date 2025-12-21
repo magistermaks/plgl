@@ -146,9 +146,12 @@ namespace plgl {
 		float verad = vrad + extension;
 		float extent = std::max(herad, verad);
 
-		// https://stackoverflow.com/a/11774493
-		float correctness = 1 - draw_quality / extent;
-		int sides = std::max(3, (int) ceil(abs(angle) / acos(2 * correctness * correctness - 1)));
+		if (stroke_flag) {
+			extent += extension;
+		}
+
+		float theta = 2 * acos(1 - draw_quality / extent);
+		int sides = (int) std::max(2.0f, (abs(angle) / theta));
 		float step = angle / sides;
 
 		for (int i = 0; i < sides; i ++) {
