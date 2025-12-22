@@ -29,7 +29,7 @@ namespace plgl {
 	}
 
 	float Vec2::length() const {
-		return sqrt(quadrance());
+		return sqrtf(quadrance());
 	}
 
 	float Vec2::get(int index) const {
@@ -65,7 +65,7 @@ namespace plgl {
 	}
 
 	float Vec3::length() const {
-		return sqrt(quadrance());
+		return sqrtf(quadrance());
 	}
 
 	float Vec3::get(int index) const {

@@ -136,7 +136,7 @@ namespace plgl {
 }
 
 /*
- * Vec2 Operators
+ * const Vec2 Operators
  */
 
 inline plgl::Vec2 operator / (const plgl::Vec2& lhs, float scalar) {
@@ -180,7 +180,7 @@ inline plgl::Vec2 operator - (float scalar, const plgl::Vec2& rhs) {
 }
 
 /*
- * Vec3 Operators
+ * const Vec3 Operators
  */
 
 inline plgl::Vec3 operator / (const plgl::Vec3& lhs, float scalar) {
@@ -221,4 +221,110 @@ inline plgl::Vec3 operator + (float scalar, const plgl::Vec3& rhs) {
 
 inline plgl::Vec3 operator - (float scalar, const plgl::Vec3& rhs) {
 	return {scalar - rhs.x, scalar - rhs.y, scalar - rhs.z};
+}
+
+/*
+ * mutable Vec2 operators
+ */
+
+inline plgl::Vec2 operator += (plgl::Vec2& lhs, float scalar) {
+	lhs.x += scalar;
+	lhs.y += scalar;
+	return lhs;
+}
+
+inline plgl::Vec2 operator -= (plgl::Vec2& lhs, float scalar) {
+	lhs.x -= scalar;
+	lhs.y -= scalar;
+	return lhs;
+}
+
+inline plgl::Vec2 operator /= (plgl::Vec2& lhs, float scalar) {
+	lhs.x /= scalar;
+	lhs.y /= scalar;
+	return lhs;
+}
+
+inline plgl::Vec2 operator *= (plgl::Vec2& lhs, float scalar) {
+	lhs.x *= scalar;
+	lhs.y *= scalar;
+	return lhs;
+}
+
+inline plgl::Vec2 operator += (plgl::Vec2& lhs, const plgl::Vec2& rhs) {
+	lhs.x += rhs.x;
+	lhs.y += rhs.y;
+	return lhs;
+}
+
+inline plgl::Vec2 operator -= (plgl::Vec2& lhs, const plgl::Vec2& rhs) {
+	lhs.x -= rhs.x;
+	lhs.y -= rhs.y;
+	return lhs;
+}
+
+/*
+ * mutable Vec3 operators
+ */
+
+inline plgl::Vec3 operator += (plgl::Vec3& lhs, float scalar) {
+	lhs.x += scalar;
+	lhs.y += scalar;
+	lhs.z += scalar;
+	return lhs;
+}
+
+inline plgl::Vec3 operator -= (plgl::Vec3& lhs, float scalar) {
+	lhs.x -= scalar;
+	lhs.y -= scalar;
+	lhs.z -= scalar;
+	return lhs;
+}
+
+inline plgl::Vec3 operator /= (plgl::Vec3& lhs, float scalar) {
+	lhs.x /= scalar;
+	lhs.y /= scalar;
+	lhs.z /= scalar;
+	return lhs;
+}
+
+inline plgl::Vec3 operator *= (plgl::Vec3& lhs, float scalar) {
+	lhs.x *= scalar;
+	lhs.y *= scalar;
+	lhs.z *= scalar;
+	return lhs;
+}
+
+inline plgl::Vec3 operator += (plgl::Vec3& lhs, const plgl::Vec3& rhs) {
+	lhs.x += rhs.x;
+	lhs.y += rhs.y;
+	lhs.x += rhs.x;
+	return lhs;
+}
+
+inline plgl::Vec3 operator -= (plgl::Vec3& lhs, const plgl::Vec3& rhs) {
+	lhs.x -= rhs.x;
+	lhs.y -= rhs.y;
+	lhs.z -= rhs.z;
+	return lhs;
+}
+
+/*
+ *
+ */
+
+inline plgl::Vec2 clamp(plgl::Vec2 value, float low, float high) {
+	float len = value.length();
+
+	if (len > high) return (value / len) * high;
+	if (len < low) return (value / len) * low;
+	return value;
+}
+
+inline plgl::Vec3 clamp(plgl::Vec3 value, float low, float high) {
+	float len = value.length();
+
+	if (len > high) return (value / len) * high;
+	if (len < low) return (value / len) * low;
+	return value;
 }
